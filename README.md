@@ -6,7 +6,7 @@
 
 2. Выполнить функцию buildUsersTree(N), где N -- количество пользователей, которые должны присутствовать в дереве.
 
-А вот и [букмарклет](index.html). 
+А вот и [букмарклет](https://rawgithub.com/sameoldmadness/5-async/master/index.html). 
 
 ## Задание
 

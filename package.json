@@ -1,0 +1,10 @@
+{
+  "name": "habr-usertree-bookmarklet",
+  "version": "1.0.0",
+  "devDependencies": {
+    "grunt": "~0.4.1",
+    "grunt-jslint": "~1.1.1",
+    "grunt-bookmarklet-thingy": "~0.2.0",
+    "grunt-preprocess": "~3.0.1"
+  }
+}

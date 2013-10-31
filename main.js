@@ -1,4 +1,5 @@
-/*globals jQuery*/
+/*globals jQuery, console*/
+/*jslint browser: true*/
 
 (function ($) {
     'use strict';
@@ -19,7 +20,7 @@
                     name: $document.find('h2.username').text(),
                     img: $document.find('img[alt="avatar"]').attr('src'),
                     parent: $document.find('#invited-by').attr('href'),
-                    children: $document.find('[rel="friend"]').map(function() {
+                    children: $document.find('[rel="friend"]').map(function () {
                         return $(this).attr('href');
                     })
                 };
@@ -43,7 +44,7 @@
     }
 
     function findRoot(url, callback) {
-        getUser(url, {}, function(user) {
+        getUser(url, {}, function (user) {
             if (user.parent) {
                 findRoot(user.parent, callback);
             } else {
@@ -53,28 +54,16 @@
     }
 
     function objLength(obj) {
-        var length = 0;
+        var length = 0,
+            i;
 
-        for (var i in obj) {
+        for (i in obj) {
             if (obj.hasOwnProperty(i)) {
                 length += 1;
             }
         }
 
         return length;
-    }
-
-    function drawTree(level, tree) {
-        var length = objLength(tree);
-
-        for (var i in tree) {
-            if (tree.hasOwnProperty(i)) {
-                length -= 1;
-
-                drawLeaf(level, cache[i].name, length === 0);
-                drawTree(level + 1, tree[i]);
-            }
-        }
     }
 
     function drawLeaf(level, value, isLastChild) {
@@ -88,20 +77,38 @@
         console.log(prefix + value);
     }
 
-    var buildUsersTree = window.buildUsersTree = function (number) {
-        var users = $('.username > a').slice(0, number).map (function () {
-            return $(this).attr('href');
-        });
+    function drawTree(level, tree) {
+        var length = objLength(tree),
+            i;
 
-        for (var i = 0; i < users.length; i += 1) {
-            findRoot(users[i], function (user) {
+        for (i in tree) {
+            if (tree.hasOwnProperty(i)) {
+                length -= 1;
+
+                drawLeaf(level, cache[i].name, length === 0);
+                drawTree(level + 1, tree[i]);
+            }
+        }
+    }
+
+    window.buildUsersTree = function (number) {
+        var i,
+            users = $('.username > a').slice(0, number).map(function () {
+                return $(this).attr('href');
+            }),
+            mapCallback = function (user) {
                 getUser(user.url, tree, getUserCallback);
-            });
+            };
+
+        for (i = 0; i < users.length; i += 1) {
+            findRoot(users[i], mapCallback);
         }
 
-        $('body').on('new_node', function (e, user) {
+        $('body').on('new_node', function () {
             console.clear();
             drawTree(0, tree);
         });
-    }
+    };
 }(jQuery));
+
+window.buildUsersTree(1);

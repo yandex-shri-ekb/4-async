@@ -68,7 +68,7 @@
 
     $('.avatar:lt('+ n +') a').each(function(){
       var _un = $(this).attr('href');
-
+      console.log( _un );
       _self.add( $( this ) );
       
     });
@@ -80,6 +80,7 @@
     var name = _name[ _name.length - 1 ] || _name[ _name.length - 2 ]; 
     var _user = this.find( name );
     if ( !_user ) {
+
       var _user = new User( $link, name, this, inviter );
       this.names.push( name );
       this.users.push( _user );
@@ -168,26 +169,31 @@
   }
 
   User.prototype.getInfo = function( html ){
-    var html = html.split('class="user_header">')[1]
-                   .split('<script')[0];
-    var $html = $( '<div>' ).html( html ),
-        _self = this;
+    var _self = this;
 
-    this.setAvatar( $html.find('img[alt="avatar"]') );
+    var ava = html.match('<img.+alt="avatar" />');
+    if (ava) {
+      this.setAvatar( $( ava[0] ) );
+    }
+
     if ( !this.inviter ) {
-      var $link = $html.find('#invited-by');
-      if ( $link.length ) {
-        var _invitor = this.parent.add( $link )
+      var link = html.match('<a id="invited-by".+>');
+      if ( link ) {
+        var _invitor = this.parent.add( $( link[0] ) );
         this.setInviter(
           _invitor
         )
       };
     };
-    $html.find('#invited_data_items a').each(function(){
-      _self.addChild( _self.parent.add( $(this), _self ) );
-    });
+
+    var _child = html.match(/<ul class="grey" id="invited_data_items">[\s\S]+<\/ul>/);
+    if ( _child ) {
+      $( _child[0] ).find('a').each(function(){
+        _self.addChild( _self.parent.add( $(this), _self ) );
+      });
+    }
   }
 
   window.___ul = new UserList( n );
 
-})( 1 );
+})( 4 );

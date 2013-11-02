@@ -19,7 +19,7 @@ define([
 
         // Извлекаем имена пользователей, с которых мы начнём строить дерево
         this.startUsernames = this.getStartUsernames(config.userCount);
-        $('head').css('height', '100%');
+        $('html').css('height', '100%');
         $(document.body).html('')
             .css('height', '100%')
             .show();

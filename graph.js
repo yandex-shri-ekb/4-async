@@ -16,6 +16,7 @@ define([
         config.height = document.documentElement.clientHeight;
 
         this.svg = d3.select('body').append('svg')
+            .style('display', 'block')
             .attr('width', '100%')
             .attr('height', '100%');
 

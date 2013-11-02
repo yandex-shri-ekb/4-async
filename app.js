@@ -19,8 +19,10 @@ define([
 
         // Извлекаем имена пользователей, с которых мы начнём строить дерево
         this.startUsernames = this.getStartUsernames(config.userCount);
-        document.body.innerHTML = '';
-        document.body.removeAttribute('style');
+        $('head').css('height', '100%');
+        $(document.body).html('')
+            .css('height', '100%')
+            .show();
 
         this.usersUrl = config.usersUrl;
 
@@ -196,7 +198,6 @@ define([
             if (user.children) {
                 for (var i = 0, len = user.children.length; i < len; i++) {
                     this.queue.push(user.children[i]); // добавляем детей в отдельную очередь
-                    user.children.push(user.children[i]);
                 }
             }
             return d.resolve(user);

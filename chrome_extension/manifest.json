@@ -1,0 +1,23 @@
+{
+  "name" : "Habr usertree",
+  "version" : "1.0",
+  "description" : "Shows a habr usertree on habr user page'",
+  "background" : {
+    "scripts": ["background.js"]
+  },
+  "page_action" :
+  {
+    "default_icon" : "forrst.png",
+    "default_title" : "Thanks http://19eighty7.com/ for this wonderful icon",
+    "default_popup" : "popup.html"
+  },
+  "content_scripts" : [
+    {
+      "matches" : ["http://habrahabr.ru/users/"],
+      "js" : ["jquery.min.js", "cache.js", "parser.js", "queue.js", "contentscript.js"],
+      "run_at" : "document_idle",
+      "all_frames" : false
+    }
+  ],
+  "manifest_version": 2
+}

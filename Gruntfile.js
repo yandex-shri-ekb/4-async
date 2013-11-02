@@ -1,31 +1,49 @@
 module.exports = function (grunt) {
-  'use strict';
+    'use strict';
 
-  grunt.loadNpmTasks('grunt-jslint');
-  grunt.loadNpmTasks('grunt-bookmarklet-thingy');
-  grunt.loadNpmTasks('grunt-preprocess');
+    grunt.loadNpmTasks('grunt-jslint');
+    grunt.loadNpmTasks('grunt-bookmarklet-thingy');
+    grunt.loadNpmTasks('grunt-preprocess');
+    grunt.loadNpmTasks('grunt-jsbeautifier');
 
-  grunt.initConfig({
-    jslint: {
-      client: {
-        src: [
-          'main.js'
-        ]
-      }
-    },
-    bookmarklet: {
-      generate: {
-        body: 'main.js',
-        out: 'bookmarklet.js'
-      }
-    },
-    preprocess : {
-      html : {
-        src : 'index.html.tpl',
-        dest : 'index.html'
-      },
-    }
-  });
+    grunt.initConfig({
+        jslint: {
+            src: [
+                "*.js",
+                "chrome_extension/**/*.js",
+                "bookmarklet/**/*.js"
+            ]
+        },
+        bookmarklet: {
+            generate: {
+                body: 'main.js',
+                out: 'bookmarklet/bookmarklet.js'
+            }
+        },
+        preprocess: {
+            html: {
+                src: 'bookmarklet/index.html.tpl',
+                dest: 'bookmarklet/index.html'
+            }
+        },
+        "jsbeautifier": {
+            files: [
+                "*.js",
+                "chrome_extension/**/*.js",
+                "bookmarklet/**/*.js"
+            ],
+            options: {
+                js: {
+                    jslintHappy: true
+                }
+            }
+        }
+    });
 
-  grunt.registerTask('default', ['jslint', 'bookmarklet', 'preprocess']);
+    grunt.registerTask('default', [
+        'jsbeautifier',
+        'jslint',
+        'bookmarklet',
+        'preprocess'
+    ]);
 };

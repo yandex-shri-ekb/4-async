@@ -79,7 +79,6 @@ define([
                     // поэтому подстраховываемся
                     setTimeout(function() {
                         if (self.queue.length === 0) {
-                            alert('Граф построен');
                             clearInterval(self.thatsAll);
                             self.thatsAll = true;
                         }

@@ -5,6 +5,7 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-bookmarklet-thingy');
     grunt.loadNpmTasks('grunt-preprocess');
     grunt.loadNpmTasks('grunt-jsbeautifier');
+    grunt.loadNpmTasks('grunt-browserify');
 
     grunt.initConfig({
         jslint: {
@@ -26,7 +27,7 @@ module.exports = function (grunt) {
                 dest: 'bookmarklet/index.html'
             }
         },
-        "jsbeautifier": {
+        jsbeautifier: {
             files: [
                 "*.js",
                 "chrome_extension/**/*.js",
@@ -37,12 +38,21 @@ module.exports = function (grunt) {
                     jslintHappy: true
                 }
             }
+        },
+        browserify: {
+          dist: {
+            files: {
+              'chrome_extension/popup.js': ['chrome_extension/popup_main.js'],
+              'chrome_extension/contentscript.js': ['chrome_extension/contentscript_main.js']
+            }
+          }
         }
     });
 
     grunt.registerTask('default', [
-        'jsbeautifier',
-        'jslint',
+        // 'jsbeautifier',
+        // 'jslint',
+        'browserify',
         'bookmarklet',
         'preprocess'
     ]);

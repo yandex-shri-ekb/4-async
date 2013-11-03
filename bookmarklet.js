@@ -21,11 +21,9 @@ javascript:(function() {
     var head = document.getElementsByTagName('head')[0];
     head.innerHTML = '<title>Домашняя работа №5</title>';
 
-    if ( ! window.requirejs) {
-        var s = document.createElement('script');
-        s.setAttribute('src', config.require);
-        s.setAttribute('data-main', config.start);
-        head.appendChild(s);
-    }
+    var s = document.createElement('script');
+    s.setAttribute('src', config.require);
+    s.setAttribute('data-main', config.start);
+    head.appendChild(s);
 
 })();

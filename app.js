@@ -169,6 +169,7 @@ define([
         var d = $.Deferred(),
             self = this,
             user = this.ls.loadUser(username);
+
         if (user === null) {
             d = $.get(this.usersUrl + username + '/').then(function(data) {
                 var user = {};
@@ -179,7 +180,6 @@ define([
 
                 // [rel=friend] - иначе при большом кол-ве приглашённых появляется ссылка "показать все"
                 var children = $(data).find('#invited_data_items a[rel=friend]');
-
                 if (children.length > 0) {
                     user.children = [];
                     for (var i = 0, len = children.length; i < len; i++) {
@@ -194,14 +194,14 @@ define([
                 return user;
             }).promise();
             return d;
-        } else {
-            if (user.children) {
-                for (var i = 0, len = user.children.length; i < len; i++) {
-                    this.queue.push(user.children[i]); // добавляем детей в отдельную очередь
-                }
-            }
-            return d.resolve(user);
         }
+
+        if (user.children) {
+            for (var i = 0, len = user.children.length; i < len; i++) {
+                this.queue.push(user.children[i]); // добавляем детей в отдельную очередь
+            }
+        }
+        return d.resolve(user);
     };
 
     return App;

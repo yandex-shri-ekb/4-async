@@ -1,6 +1,7 @@
 'use strict';
 
 require.config({
+    waitSeconds : 30,
     paths : {
         'jquery'     : '//yandex.st/jquery/1.10.2/jquery.min',
         'd3'         : 'http://d3js.org/d3.v3.min',

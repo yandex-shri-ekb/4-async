@@ -28,23 +28,29 @@ define([
         // Игнорируемые
         this.blackList = config.blackList;
 
-        // Визуализация графа
+        // Визуализация дерева
         this.tree = new Tree;
 
         // Работа с localStorage
         this.ls = new LS;
 
-        // Очередь детей, о которых надо получить информацию и добавить на граф
+        // Очередь детей, о которых надо получить информацию и добавить в дерево
         this.queue = [];
+
+        // Величина задержки между первым запросом и последним
+        this.delay = 0;
+
+        // Величина паузы между запросами к серверу
+        this.timeout = 500;
     };
 
     /**
-     * Строит граф.
+     * Строит дерево.
      */
     App.prototype.start = function() {
         var self = this;
 
-        // Ищем корни и добавляем их на граф
+        // Ищем корни и добавляем их в дерево
         for (var i = 0, len = this.startUsernames.length; i < len; i++) {
             if (self.checkUser(this.startUsernames[i]))
                 continue;
@@ -65,12 +71,12 @@ define([
                 if (self.checkUser(u))
                     return;
 
-                // Получать о нём информацию и добавлять на граф
+                // Получать о нём информацию и добавлять в дерево
                 self.getUserInfo(u).then(function(user) {
                     $.proxy(self.addUser(user), self);
                 });
             }
-        }, 500);
+        }, 100);
     };
 
     /**
@@ -84,7 +90,7 @@ define([
     };
 
     /**
-     * Добавляет пользователя на граф, а имена его детей в очередь на обход.
+     * Добавляет пользователя в дерево, а имена его детей в очередь на обход.
      *
      * @param {Object} user пользователь
      */
@@ -144,31 +150,35 @@ define([
             self = this,
             user = this.ls.loadUser(username);
 
+        // Если пользователя нет в кеше, делаем запрос
         if (user === null) {
-            d = $.get(this.usersUrl + username + '/').then(function(data) {
-                var user = {};
+            setTimeout(function() {
+                $.get(self.usersUrl + username + '/').then(function(data) {
+                    var user = {};
 
-                user.name = username; // $(data).find('.user_header h2.username a').text();
-                user.avatar = $(data).find('.user_header .avatar img').attr('src');
-                user.parent = $(data).find('#invited-by').text() || null;
-                user.children = [];
+                    user.name = username; // $(data).find('.user_header h2.username a').text();
+                    user.avatar = $(data).find('.user_header .avatar img').attr('src');
+                    user.parent = $(data).find('#invited-by').text() || null;
+                    user.children = [];
 
-                // [rel=friend] - иначе при большом кол-ве приглашённых появляется ссылка "показать все"
-                var children = $(data).find('#invited_data_items a[rel=friend]');
-                if (children.length > 0) {
-                    for (var i = 0, l = children.length; i < l; i++)
-                        user.children.push(children[i].innerHTML);
-                }
+                    // [rel=friend] - иначе при большом кол-ве приглашённых появляется ссылка "показать все"
+                    var children = $(data).find('#invited_data_items a[rel=friend]');
+                    if (children.length > 0) {
+                        for (var i = 0, l = children.length; i < l; i++)
+                            user.children.push(children[i].innerHTML);
+                    }
 
-                // Кешируем в localStorage
-                self.ls.saveUser(user);
+                    // Кешируем в localStorage
+                    self.ls.saveUser(user);
 
-                return user;
-            }).promise();
-            return d;
+                    d.resolve(user);
+                });
+            }, this.delay += this.timeout);
+        } else {
+            d.resolve(user);
         }
 
-        return d.resolve(user);
+        return d;
     };
 
     return App;

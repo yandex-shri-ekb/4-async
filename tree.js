@@ -9,7 +9,8 @@ define([
         var w = document.documentElement.clientWidth - 20,
             h = document.documentElement.clientHeight - 20;
 
-        this.duration = config.duration || 500;
+        // Продолжительность анимации, мс
+        this.duration = config.duration || 100;
 
         this.svg = d3.select('body').append('svg')
             .style('display', 'block')

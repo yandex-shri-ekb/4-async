@@ -20,7 +20,7 @@ define([
         // Извлекаем имена пользователей, с которых мы начнём строить дерево
         this.startUsernames = this.getStartUsernames(config.userCount);
         $(document.body).html('')
-            .css({ 'margin' : 0 })
+            .css({ margin : 0 })
             .show();
 
         this.usersUrl = config.usersUrl;
@@ -37,10 +37,10 @@ define([
         // Очередь детей, о которых надо получить информацию и добавить в дерево
         this.queue = [];
 
-        // Величина задержки между первым запросом и последним
+        // Количество запросов в очереди
         this.delay = 0;
 
-        // Величина паузы между запросами к серверу
+        // Величина паузы между запросами к серверу, мс
         this.timeout = 500;
     };
 
@@ -111,16 +111,17 @@ define([
      * @return {Object} Deferred-объект
      */
     App.prototype.findRoot = function(user) {
+        var d;
         // Если у пользователя есть родитель, значит пока он нас не интересует;
         // добавляем его в хранилище и запрашиваем информацию о его родителе
         if (user.parent) {
             var self = this;
-            var d = this.getUserInfo(user.parent).then(function(parent) {
+            d = this.getUserInfo(user.parent).then(function(parent) {
                 return self.findRoot(parent);
             });
             return d;
         } else { // Если пользователь зарегистрировался по приглашению НЛО
-            var d = $.Deferred();
+            d = $.Deferred();
             return d.resolve(user);
         }
     };

@@ -15,7 +15,7 @@ define(function() {
      *
      * @type {string}
      */
-    LS.prototype.USER_PREFIX = 'habraUser.';
+    LS.prototype.USER_PREFIX = 'habraUserv2.';
 
     /**
      * Получение пользователя из localStorage.

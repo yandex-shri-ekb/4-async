@@ -6,7 +6,7 @@ require.config({
         'd3'         : 'http://d3js.org/d3.v3.min',
         'app'        : 'app',
         'ls'         : 'ls',
-        'graph'      : 'graph'
+        'tree'       : 'tree'
     },
     shim: {
         d3: {

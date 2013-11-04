@@ -5,15 +5,20 @@ javascript:(function() {
         start   : 'https://rawgithub.com/mayton/5-async/master/main.js'
     };
 
+    if (window.location.href !== 'http://habrahabr.ru/users/') {
+        alert('Для запуска сценария перейдите по адресу http://habrahabr.ru/users/');
+        return;
+    }
+
     var body = document.body;
     if (body.getAttribute('count') !== null) {
         alert('Для повторного запуска сценария необходимо обновить страницу.');
-        return false;
+        return;
     }
 
-    var userCount = prompt('Сколько пользователей брать для анализа?', 5);
+    var userCount = prompt('Сколько пользователей брать для анализа?', 2);
     if (userCount === null)
-        return false;
+        return;
 
     body.setAttribute('count', userCount);
     body.style.display = 'none';

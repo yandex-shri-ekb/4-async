@@ -154,6 +154,8 @@ define([
         if (user === null) {
             setTimeout(function() {
                 $.get(self.usersUrl + username + '/').then(function(data) {
+                    self.delay--;
+
                     var user = {};
 
                     user.name = username; // $(data).find('.user_header h2.username a').text();
@@ -173,7 +175,7 @@ define([
 
                     d.resolve(user);
                 });
-            }, this.delay += this.timeout);
+            }, this.delay++ * this.timeout);
         } else {
             d.resolve(user);
         }

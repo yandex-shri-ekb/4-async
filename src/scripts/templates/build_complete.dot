@@ -1,0 +1,6 @@
+<div id="state{{= it.group}}" class="state">
+    <span class="state_indicator state_indicator-complete"></span>
+    <span class="state_message">
+        Группа {{= it.group }} построена
+    <span>
+</div>

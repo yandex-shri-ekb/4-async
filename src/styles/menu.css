@@ -1,0 +1,27 @@
+
+.menu_group
+{
+    margin-bottom: 20px;
+}
+.menu_button
+{
+    display: block;
+    width: 100%;
+    margin: 0 0 10px;
+}
+
+.menu_control
+{
+    line-height: 22px;
+}
+
+.menu_control_input
+{
+    margin: 0;
+    float: right;
+}
+
+.menu_control_input-number
+{
+    width: 40px;
+}

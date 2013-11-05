@@ -1,8 +1,8 @@
-javascript:(function() {
+(function() {
 
     var config = {
         require : '//cdnjs.cloudflare.com/ajax/libs/require.js/2.1.9/require.min.js',
-        start   : 'https://rawgithub.com/mayton/5-async/master/main.js'
+        start   : 'https://rawgithub.com/mayton/5-async/master/build/all.min.js'
     };
 
     if (window.location.href !== 'http://habrahabr.ru/users/') {

@@ -62,31 +62,45 @@ define('graph', ['d3', 'jquery'], function(d3, $) {
     };
 
     /**
-     * @param {User} node
+     * @param {string} name
+     * @param {?int} size
+     * @param {?Object} options
      */
-    Graph.prototype.add = function(node) {
+    Graph.prototype.add = function(name, size, options) {
+        size = size || 0;
+        options = $.extend({fill: '#222'}, options);
+        var node = {name: name, size:size, o: options};
         this.nodes.push(node);
+
+        return node;
     };
 
     /**
-     * @param {User} source
-     * @param {User} target
+     * @param {Object} source
+     * @param {Object} target
      */
     Graph.prototype.linkNodes = function (source, target) {
+        if(!source || !target) {
+            throw new Error('Cannot link empty nodes');
+        }
+
         this.links.push({
             source: source,
             target: target
         });
+
+        return this;
     };
 
     /**
-     * @param {string} nickname
-     * @returns {User|null}
+     * @param {string} name
+     * @returns {Object|null}
      */
-    Graph.prototype.find = function(nickname) {
+    Graph.prototype.find = function(name) {
         for(var i = 0, l = this.nodes.length; i < l; i++) {
-            if (this.nodes[i].nickname === nickname)
+            if (this.nodes[i].name === name) {
                 return this.nodes[i];
+            }
         }
 
         return null;
@@ -103,7 +117,7 @@ define('graph', ['d3', 'jquery'], function(d3, $) {
             .start();
 
         graph.link = this.svg.selectAll('.link')
-           .data(this.force.links(), function(d) { return d.source.nickname + '-' + d.target.nickname });
+           .data(this.force.links(), function(d) { return d.source.name + '-' + d.target.name });
 
         // Enter any new links.
         graph.link.enter().insert("svg:line", ".node")
@@ -118,21 +132,21 @@ define('graph', ['d3', 'jquery'], function(d3, $) {
 
         // Update the nodes…
         graph.node = this.svg.selectAll("circle.node")
-            .data(graph.nodes, function(d) { return d.nickname; })
-            .style("fill", '#222');
+            .data(graph.nodes, function(d) { return d.name; })
+            .style("fill", function(d) { return d.o.fill; });
 
         graph.node.transition()
-            .attr("r", function(d) { return 5 + Math.floor(d.friends.length * 2 / 5) / 2 });
+            .attr("r", function(d) { return 5 + Math.floor(d.size * 2 / 5) / 2 });
 
         // Enter any new nodes.
         graph.node.enter().append("svg:circle")
             .attr("class", "node")
             .attr("cx", function(d) { return d.x; })
             .attr("cy", function(d) { return d.y; })
-            .attr("r", function(d) { return 5 + Math.floor(d.friends.length * 2 / 5) / 2 })
-            .style("fill", '#222')
+            .attr("r", function(d) { return 5 + Math.floor(d.size * 2 / 5) / 2 })
+            .style("fill", function(d) { return d.o.fill; })
             .call(graph.force.drag)
-            .append('title').text(function(d) { return d.nickname; });
+            .append('title').text(function(d) { return d.name; });
         graph.node.exit().remove();
     };
 

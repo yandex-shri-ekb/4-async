@@ -34,7 +34,7 @@ require(['app', 'user', 'jquery'], function(App, User, $) {
     // находим пользователей, с которых начнем строить наше дерево
     $peoples.find('.user:lt(' + INIT_USER_AMOUNT + ') .username a').each(function() {
         var $link = $(this),
-            user = new User($link.text(), $link.attr('href'));
+            user = new User($link.text().trim(), $link.attr('href'));
         users.push(user);
     });
 

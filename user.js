@@ -6,21 +6,21 @@ define('user', [], function() {
     /**
      * @constructor
      * @param {string} nickname
-     * @param {string} url
+     * @param {?string} url
      */
     var User = function(nickname, url) {
         this.nickname = nickname;
-        this.url = url;
+        this.url = url || '/users/' + nickname + '/';
         this.avatar = null;
-
-        // загружен
-        this.isLoaded = false;
 
         // пригласил на сайт
         this.friends = [];
 
         // от кого получил приглашение
         this.invitedBy = null;
+
+        // был ли пользователь получен из storage
+        this.__storage = false;
     };
 
     /**

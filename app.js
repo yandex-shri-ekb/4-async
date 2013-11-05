@@ -1,25 +1,27 @@
 'use strict';
 
 define('app', ['jquery', 'graph', 'user', 'storage'], function($, Graph, User, storage) {
+    /** @class App */
+
     /**
-     * @class App
-     *
      * @constructor
      * @param {Object} options
      */
     var App = function(options) {
-        var app = this,
-            defaults = {
-                // частота опроса
-                sampleRate: 2500,
-                // тестовый режим
-                testMode: false
-            };
+        var defaults = {
+            // частота опроса
+            sampleRate: 650,
+            // тестовый режим
+            testMode: false
+        };
 
         this.options = $.extend(defaults, options);
 
         // очередь
         this.queue = [];
+
+        // флаг остановки
+        this.isStoped = false;
 
         this.nTicks = 0;
     };
@@ -37,10 +39,10 @@ define('app', ['jquery', 'graph', 'user', 'storage'], function($, Graph, User, s
                 .css('height', h + 'px'),
             $controls = $('<div id="controls"></div>');
 
-        var $stop = $('<button id="btn-stop">stop</button>')
+        $('<button id="btn-stop">stop</button>')
             .appendTo($controls)
             .on('click', function() {
-                clearInterval(app.mainLoop);
+                app.isStoped = true;
                 return false;
             });
 
@@ -51,35 +53,29 @@ define('app', ['jquery', 'graph', 'user', 'storage'], function($, Graph, User, s
             .append($canvas);
 
         var root = new User('НЛО', '/');
+        root.avatar = '/favicon.ico';
 
         app.queue = [];
         app.graph = new Graph($canvas.get(0), {w:w, h:h});
-        app.graph.add(root);
+        app.addToGraph(root, 40, {fill: '#959595'});
 
         for(var i = 0, l = initUsers.length; i < l; i++) {
             app.queue.push(initUsers[i]);
-            app.graph.add(initUsers[i]);
+            app.addToGraph(initUsers[i]);
         }
 
         app.graph.update();
 
         if(app.options.testMode) {
-            app.graph.linkNodes(root, initUsers[0]);
-            app.graph.linkNodes(initUsers[0], initUsers[1]);
+            app.linkUsers(root, initUsers[0]);
+            app.linkUsers(initUsers[0], initUsers[1]);
             app.graph.update();
 
             return;
         }
 
-        /**
-         */
-        function onMainLoop() {
-            app.tick();
-        }
-
-        // start timer
-        app.mainLoop = setInterval(onMainLoop, app.options.sampleRate);
-        onMainLoop();
+        // start loop
+        app.tick();
     };
 
     /**
@@ -88,87 +84,120 @@ define('app', ['jquery', 'graph', 'user', 'storage'], function($, Graph, User, s
         var app = this;
         app.nTicks++;
 
-        if(app.queue.length === 0) {
+        var user = app.queue.shift();
+        if(user === undefined) {
             return;
         }
 
-        var user = app.queue.shift();
-        app.processUser(user);
-    };
+        console.log('Request for ' + user.nickname);
+        app.requestUser(user).then(function(user) {
+            var node = app.addToGraph(user),
+                parentNode = app.findNode(user.invitedBy);
 
-    /**
-     * @param {User} user
-     */
-    App.prototype.processUser = function(user) {
-        var app = this;
+            console.log(user);
 
-        console.log(user);
-
-        // получаем информацию о пользователе
-        $.get(user.url, function(response) {
-            var $page = $(response),
-                $invitedBy = $('#invited-by', $page),
-                invitedByName = '',
-                invitedByUrl = '',
-                invitedByUser = null;
-
-            if($invitedBy.length === 0) {
-                // наверное НЛО
-                invitedByUser = app.getUser('НЛО');
+            if(parentNode !== null) {
+                app.graph.linkNodes(node, parentNode).update();
             }
             else {
-                invitedByName = $invitedBy.text().trim() || null;
-                invitedByUrl = $invitedBy.attr('href') || null;
-                invitedByUser = app.getUser(invitedByName);
+                app.addToQueue(user.invitedBy, 'high');
             }
 
-            if(!invitedByUser) {
-                invitedByUser = new User(invitedByName, invitedByUrl);
-                app.addToQueue(invitedByUser);
-                app.storeUser(invitedByUser);
-            }
+            user.friends.forEach(function(f) {
+                var friendNode = app.findNode(f);
 
-            user.avatar = $('.user_header .avatar img', $page).attr('src');
-            user.invitedBy = invitedByUser;
-            user.isLoaded = true;
-            invitedByUser.addFriend(user);
-            app.linkUsers(invitedByUser, user);
-            app.graph.update();
-
-            // друзьяши
-            var $friends = $('#invited_data_items li a[rel="friend"]', $page);
-            $friends.each(function() {
-                var $friend = $(this),
-                    friendName = $friend.text().trim(),
-                    friendUrl = $friend.attr('href'),
-                    friend = app.getUser(friendName);
-
-                if(!friend) {
-                    friend = new User(friendName, friendUrl);
-                    app.addToQueue(friend);
-                    app.storeUser(friend);
+                if(friendNode !== null) {
+                    app.graph.linkNodes(friendNode, node).update();
                 }
-
-                friend.invitedBy = user;
-                user.addFriend(friend);
-                app.linkUsers(user, friend);
-                app.graph.update();
+                else {
+                    app.addToQueue(f, 'low');
+                }
             });
+
+            var nextThrough = user.__storage ? 150 : app.options.sampleRate;
+            setTimeout(function() {
+                app.tick();
+            }, nextThrough)
         });
     };
 
     /**
      * @param {User} user
      */
-    App.prototype.addToQueue = function(user) {
-        this.queue.push(user);
+    App.prototype.requestUser = function(user) {
+        // кеш
+        var cachedValue = storage.load(user.nickname, 'user.');
+
+        var d = $.Deferred();
+        if(cachedValue !== null) {
+            cachedValue.__storage = true;
+            d.resolve(cachedValue);
+            console.log('loaded from cache');
+        }
+        else {
+            // получаем информацию о пользователе
+            $.get(user.url, function(response) {
+                var $page = $(response),
+                    $invitedBy = $('#invited-by', $page),
+                    invitedByName = '',
+                    invitedByUrl = '';
+
+                if($invitedBy.length === 0) {
+                    // наверное НЛО
+                    invitedByName = 'НЛО';
+                }
+                else {
+                    invitedByName = $invitedBy.text().trim() || null;
+                    invitedByUrl = $invitedBy.attr('href') || null;
+                }
+
+                var invitedByUser = new User(invitedByName, invitedByUrl);
+
+                user.avatar = $('.user_header .avatar img', $page).attr('src');
+                user.invitedBy = invitedByUser;
+
+                // друзьяши, куда без них
+                var $friends = $('#invited_data_items li a[rel="friend"]', $page);
+                user.friends = $friends.map(function() {
+                    var $friend = $(this),
+                        friendName = $friend.text().trim(),
+                        friendUrl = $friend.attr('href');
+
+                    return new User(friendName, friendUrl);
+                }).get();
+
+                storage.save(user.nickname, user, 'user.');
+                console.log('saved to cache');
+                d.resolve(user);
+            });
+        }
+
+        return d.promise();
     };
 
     /**
      * @param {User} user
+     * @param {?string} priority
      */
-    App.prototype.storeUser = function(user) {
-        this.graph.add(user);
+    App.prototype.addToQueue = function(user, priority) {
+        priority = priority || 'low';
+        if(priority === 'high') {
+            this.queue.unshift(user);
+        }
+        else {
+            this.queue.push(user);
+        }
+    };
+
+    /**
+     * @param {User} user
+     * @param {?int} size
+     * @param {?Object} options
+     */
+    App.prototype.addToGraph = function(user, size, options) {
+        size = size || user.friends.length;
+        options = options || {};
+        return this.graph.add(user.nickname, size, options);
     };
 
 
@@ -177,14 +206,19 @@ define('app', ['jquery', 'graph', 'user', 'storage'], function($, Graph, User, s
      * @param {User} user2
      */
     App.prototype.linkUsers = function(user1, user2) {
-        this.graph.linkNodes(user1, user2);
+        var node1 = this.findNode(user1),
+            node2 = this.findNode(user2);
+
+        if(node1 && node2) {
+            this.graph.linkNodes(node1, node2);
+        }
     };
 
     /**
-     * @param {string} nickname
+     * @param {User} user
      */
-    App.prototype.getUser = function(nickname) {
-        return this.graph.find(nickname);
+    App.prototype.findNode = function(user) {
+        return this.graph.find(user.nickname);
     };
 
     return App;

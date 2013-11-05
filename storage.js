@@ -8,7 +8,13 @@ define('storage', [], function() {
         },
         load: function(name, prefix) {
             prefix = prefix || '';
-            JSON.parse(window.localStorage.getItem(prefix + name));
+            var value = window.localStorage.getItem(prefix + name);
+            if(value !== null) {
+                return JSON.parse(value);
+            }
+            else {
+                return null;
+            }
         }
     };
 });

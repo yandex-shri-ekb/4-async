@@ -14,7 +14,7 @@ define(function(require) {
         this.counter = 0;
     };
 
-    StoreGroup.prototype = $.extend(EventEmitter.prototype, {
+    StoreGroup.prototype = $.extend({
         /**
          * Метод увеличивает счетчик активных запросов.
          * 
@@ -59,7 +59,7 @@ define(function(require) {
         contains: function(username) {
             return this.usernames.indexOf(username) > -1;
         }
-    });
+    }, EventEmitter.prototype);
 
     return StoreGroup;
 });

@@ -17,7 +17,7 @@ define(function(require) {
         this.createLayout();
     };
 
-    Visualizer.prototype = $.extend(EventEmitter.prototype, {
+    Visualizer.prototype = $.extend({
         /**
          * Метод вставляет в контейнер SVG и инициализирует Force layout.
          * 
@@ -214,7 +214,7 @@ define(function(require) {
                 }
             }
         }
-    });
+    }, EventEmitter.prototype);
 
     return Visualizer;
 });

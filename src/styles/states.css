@@ -38,12 +38,12 @@
 .state_indicator
 {
     display: block;
+    float: left;
     width: 20px;
     height: 20px;
     border: 2px solid;
-    float: left;
-    background: transparent;
     border-radius: 50%;
+    background: transparent;
 }
 
 .state_indicator-loading
@@ -52,17 +52,18 @@
     -moz-animation: loading 1s infinite linear;
     -ms-animation: loading 1s infinite linear;
     -webkit-animation: loading 1s infinite linear;
+    -o-animation: loading 1s infinite linear;
     animation: loading 1s infinite linear;
 }
 
 .state_indicator-complete
 {
-    border-color: #02C261;
+    border-color: #02c261;
 }
 
 .state_message
 {
-    line-height: 24px;
     display: inline-block;
     margin: 0 0 0 12px;
+    line-height: 24px;
 }

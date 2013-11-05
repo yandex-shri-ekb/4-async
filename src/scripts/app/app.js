@@ -32,7 +32,7 @@ define(function(require) {
         /**
          * Обработка события вызванного успешным получением данных пользователей.
          * 
-         * @param  {[type]} data Инфомация о узле (пользователе)
+         * @param  {Object} data Инфомация о узле (пользователе)
          */
         crawler.on('get:node', function(data) {
             var node = data.user.pure(data.group);
@@ -74,7 +74,7 @@ define(function(require) {
             if(graph) {
                 visualizer.addGraph(graph);
             } else {
-                crawler.start('http://habrahabr.ru/users/' + username + '/');
+                crawler.start(username);
             }
         };
 

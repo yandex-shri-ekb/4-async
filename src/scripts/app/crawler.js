@@ -3,6 +3,7 @@ define(function(require) {
 
     var UserProfile = require('app/parser/user_profile'),
         EventEmitter = require('./event_emitter'),
+        Config = require('app/config/crawler_config'),
         Store = require('app/store/store');
 
     /**
@@ -15,7 +16,7 @@ define(function(require) {
         this.requestDelay = 0;
     };
 
-    Crawler.prototype = $.extend(EventEmitter.prototype, {
+    Crawler.prototype = $.extend({
         /**
          * Метод реализует последовательный вызов через заданный интервал
          * 
@@ -24,7 +25,7 @@ define(function(require) {
         wait: function() {
             var d = $.Deferred();
             setTimeout(d.resolve, this.requestDelay);
-            this.requestDelay += 250;
+            this.requestDelay += Config.requestDelay;
             return d.promise();
         },
 
@@ -121,13 +122,13 @@ define(function(require) {
          *
          * @fires Crawler#get:root
          * 
-         * @param  {String} url Ссылка на профиль пользователя
+         * @param  {String} username
          * @return {*}
          */
-        start: function(url) {
+        start: function(username) {
             var self = this;
 
-            self.getRoot(url).then(function (root) {
+            self.getRoot(Config.usersUrl + username).then(function (root) {
                 var group = Store.createGroup(root.username);
 
                 /**
@@ -144,7 +145,7 @@ define(function(require) {
                 });
             });
         }
-    });
+    }, EventEmitter.prototype);
 
     return Crawler;
 });

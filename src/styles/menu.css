@@ -2,11 +2,12 @@
 {
     margin-bottom: 20px;
 }
+
 .menu_button
 {
     display: block;
-    width: 100%;
     margin: 0 0 10px;
+    width: 100%;
 }
 
 .menu_control
@@ -16,8 +17,8 @@
 
 .menu_control_input
 {
-    margin: 0;
     float: right;
+    margin: 0;
 }
 
 .menu_control_input-number

@@ -1,7 +1,8 @@
 define(function(require) {
     'use strict';
 
-    var $ = require('jquery');
+    var $ = require('jquery'),
+            Config = require('app/config/ui_config');
 
     var Template = {
         buildProgress: require('doT!templates/build_progress'),
@@ -18,7 +19,7 @@ define(function(require) {
                 startButton: $('#control_start'),
                 resetButton: $('#control_reset'),
                 clearStorageButton: $('#control_clear-storage'),
-                statesContainer: $('#states')
+                statesContainer: $('.' + Config.statesContainerClass)
             };
 
             return $el;

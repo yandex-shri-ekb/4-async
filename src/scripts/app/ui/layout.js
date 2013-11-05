@@ -1,7 +1,8 @@
 define(function(require) {
     'use strict';
 
-    var $ = require('jquery');
+    var $ = require('jquery'),
+        Config = require('app/config/ui_config');
 
     var template = require('doT!templates/layout'),
         styles = require('text!../../../styles/build.css');
@@ -13,7 +14,10 @@ define(function(require) {
     return {
         load: function(tagret) {
             tagret = tagret || document.body;
-            $(tagret).html($styles).append(template());
+            $(tagret).html($styles).append(template({
+                svg: Config.svgContainerClass,
+                states: Config.statesContainerClass
+            }));
         }
     };
 });

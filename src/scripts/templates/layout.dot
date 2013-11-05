@@ -1,5 +1,5 @@
 <div class="layout">
-    <div class="layout_container layout_container-svg"></div>
+    <div class="layout_container {{= it.svg }}"></div>
     <div class="layout_container layout_container-menu">
         <div class="menu_group">
             <div class="menu_control">
@@ -12,6 +12,6 @@
             <button id="control_reset" type="button" class="button menu_button">Сбросить</button>
             <button id="control_clear-storage" type="button" class="button menu_button">Очистить хранилище</button>
         </div>
-        <div id="states" class="menu_group"></div>
+        <div id="states" class="menu_group {{= it.states }}"></div>
     </div>
 </div>

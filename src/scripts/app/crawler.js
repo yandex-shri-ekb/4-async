@@ -2,16 +2,25 @@ define(function(require) {
     'use strict';
 
     var UserProfile = require('app/parser/user_profile'),
-        EventTarget = require('./event_target'),
+        EventEmitter = require('./event_emitter'),
         Store = require('app/store/store');
 
+    /**
+     * @class
+     * @classdesc Класс реализует получение данных о пользователях с Хабрахабра.
+     */
     var Crawler = function() {
-        EventTarget.call(this);
+        EventEmitter.call(this);
         this.userProfileCache = {};
         this.requestDelay = 0;
     };
 
-    Crawler.prototype = $.extend(EventTarget.prototype, {
+    Crawler.prototype = $.extend(EventEmitter.prototype, {
+        /**
+         * Метод реализует последовательный вызов через заданный интервал
+         * 
+         * @return {Object} Promise
+         */
         wait: function() {
             var d = $.Deferred();
             setTimeout(d.resolve, this.requestDelay);
@@ -19,6 +28,13 @@ define(function(require) {
             return d.promise();
         },
 
+        /**
+         * Метод запрашивает данные о корне для группы пользователей.
+         * Пройденные узлы кэшируются.
+         * 
+         * @param  {String} url Ссылка на профиль пользователя
+         * @return {Object}     Promise
+         */
         getRoot: function(url) {
             return $.ajax(url, {
                 context: this
@@ -29,7 +45,14 @@ define(function(require) {
             });
         },
 
-        getuserProfile: function (url) {
+        /**
+         * Метод запрашивает данные о пользователе.
+         * Если данные закэшированы, Метод возвращает объект имитирующий Promise.
+         * 
+         * @param  {String} url Ссылка на профиль пользователя
+         * @return {Object}
+         */
+        getUserProfile: function (url) {
             var self = this;
             if(typeof this.userProfileCache[url] !== 'undefined') {
                 return {
@@ -46,12 +69,27 @@ define(function(require) {
             });
         },
 
+        /**
+         * Метод получает данные о ползователе.
+         * Рекурсивно вызывается для приглашенных пользователей.
+         * 
+         * @fires Crawler#get:node
+         * 
+         * @param  {String} url    Ссылка на профиль пользователя
+         * @param  {Object} parent Информация о родителе
+         * @param  {Object} group  Группа к которой принадлежит пользователь
+         * @return {*}
+         */
         detour: function(url, parent, group) {
             var self = this;
 
             group.waitPush();
             
-            self.getuserProfile(url).then(function(userProfile){
+            self.getUserProfile(url).then(function(userProfile){
+                /**
+                 * Если данный пользователь уже находится в группе, прерывается выполнение фунции.
+                 * Данное поведение позволяет разрешить коллизии созданные Хабрахабром.
+                 */
                 if(group.contains(userProfile.username)) {
                     group.diminish();
                     return;
@@ -59,7 +97,11 @@ define(function(require) {
 
                 group.push(userProfile.username);
 
-                self.trigger('get:node', {
+                /**
+                 * @event Crawler#get:node 
+                 * @type {Object}
+                 */
+                self.emit('get:node', {
                     user: userProfile,
                     parent: parent,
                     group: group.index
@@ -74,13 +116,25 @@ define(function(require) {
             });
         },
 
+        /**
+         * Метод запускает обход пользователей начиная с корня группы.
+         *
+         * @fires Crawler#get:root
+         * 
+         * @param  {String} url Ссылка на профиль пользователя
+         * @return {*}
+         */
         start: function(url) {
             var self = this;
 
             self.getRoot(url).then(function (root) {
                 var group = Store.createGroup(root.username);
 
-                self.trigger('get:root', {
+                /**
+                 * @event Crawler#get:root 
+                 * @type {Object}
+                 */
+                self.emit('get:root', {
                     user: root,
                     group: group.index
                 });

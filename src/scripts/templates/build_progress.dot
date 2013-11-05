@@ -1,4 +1,4 @@
-<div id="state{{= it.group}}" class="state">
+<div id="state{{= it.group }}" class="state">
     <span class="state_indicator state_indicator-loading"></span>
     <span class="state_message">
         Построение группы {{= it.group }}

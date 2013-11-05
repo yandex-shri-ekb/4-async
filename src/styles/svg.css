@@ -1,0 +1,21 @@
+svg
+{
+    background: #fff;
+    min-height: 400px;
+    max-height: 800px;
+}
+
+.link
+{
+    stroke: #aaa;
+}
+
+.node_text
+{
+    fill: #ccc;
+}
+
+.node:hover .node_text
+{
+    fill: #333;
+}

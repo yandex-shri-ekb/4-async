@@ -12,6 +12,12 @@ define(function(require) {
 
         onBuildDone: function() {},
 
+        /**
+         * Функция инициализирует новую группу пользователей.
+         * 
+         * @param  {Object} root Корень группы (пользователь)
+         * @return {Object}      Группа
+         */
         createGroup: function(root) {
             var groupIndex = this.groups.length;
             var group = new StoreGroup(groupIndex, root);
@@ -24,10 +30,22 @@ define(function(require) {
             return group;
         },
 
+        /**
+         * Функция кэширует узел визуализации.
+         * 
+         * @param  {Object} node
+         * @return {*}
+         */
         addNode: function(node) {
             this.visualizationData[node.group].nodes.push(node);
         },
 
+        /**
+         * Функция кэширует связь между узлами визуализации.
+         * 
+         * @param  {Object} link
+         * @return {*}
+         */
         addLink: function(link) {
             this.visualizationData[link.target.group].links.push({
                 target: link.target.id,
@@ -35,6 +53,14 @@ define(function(require) {
             });
         },
 
+        /**
+         * Обработчик события "done" вызываемого в StoreGroup.
+         *
+         * В localStorage помещается данные визуализации группы и список групп.
+         * 
+         * @param  {Object}   data 
+         * @return {*}
+         */
         done: function(data) {
             adapter.set({
                 prefix: 'group',
@@ -46,6 +72,12 @@ define(function(require) {
             this.onBuildDone.call(this, data.index);
         },
 
+        /**
+         * Функция ищет закэшированную группу пользователя.
+         * 
+         * @param  {String} username
+         * @return {*}
+         */
         getGroup: function (username) {
             for(var i = 0, len = this.groups.length; i < len; i++) {
                 if (this.groups[i].indexOf(username) > -1) {
@@ -57,6 +89,11 @@ define(function(require) {
             }
         },
 
+        /**
+         * Функция очищает localStorage, закэшированные группы и данные визуализации.
+         * 
+         * @return {*}
+         */
         clear: function() {
             adapter.clear();
             this.groups = [];

@@ -2,19 +2,29 @@ define(function(require) {
     'use strict';
 
     var d3 = require('d3'),
-        EventTarget = require('./event_target');
+        EventEmitter = require('./event_emitter'),
+        Config = require('app/config/ui_config');
 
+    /**
+     * @class
+     * @classdesc Класс реализует визуализацию данных.
+     */
     var Visualizer = function() {
-        EventTarget.call(this);
+        EventEmitter.call(this);
         this.width = 900;
         this.height = 700;
         this.nodeCache = {};
         this.createLayout();
     };
 
-    Visualizer.prototype = $.extend(EventTarget.prototype, {
+    Visualizer.prototype = $.extend(EventEmitter.prototype, {
+        /**
+         * Метод вставляет в контейнер SVG и инициализирует Force layout.
+         * 
+         * @return {*}
+         */
         createLayout: function() {
-            var svg = d3.select('.layout_container-svg').append('svg:svg')
+            var svg = d3.select('.' + Config.svgContainerClass).append('svg:svg')
                 .attr('viewBox', '0 0 ' + this.width + ' ' + this.height)
                 .attr('preserveAspectRatio', 'xMinYMin');
 
@@ -32,12 +42,22 @@ define(function(require) {
             this.link = svg.selectAll('line.link');
         },
 
+        /**
+         * Метод обновляет ссылки и узлы.
+         * 
+         * @return {*}
+         */
         update: function() {
             this.updateLinks();
             this.updateNodes();
             this.force.start();
         },
 
+        /**
+         * Метод очищает кэш и удаляет узлы вместе с ссылками.
+         * 
+         * @return {*}
+         */
         reset: function() {
             this.nodeCache = {};
             while(this.nodes.pop()) {}
@@ -45,22 +65,54 @@ define(function(require) {
             this.update();
         },
 
+        /**
+         * Метод добавляет новый узел.
+         * 
+         * @fires Visualizer#add:node
+         * 
+         * @param   {Object} node
+         * @return  {*}
+         */
         addNode: function(node) {
-            this.trigger('add:node', node);
+            /**
+             * @event Visualizer#add:node
+             * @type {Object}
+             */
+            this.emit('add:node', node);
             this.nodes.push(node);
             this.update();
         },
 
+
+        /**
+         * Метод добавляет связь между двумя узлами.
+         * 
+         * @fires Visualizer#add:link
+         * 
+         * @param   {String} source Идентификатор узла
+         * @param   {Object} target Узел
+         * @return  {*}
+         */
         addLink: function(source, target) {
             var link = {
                 source: this.findNode(source),
                 target: target
             };
-            this.trigger('add:link', link);
+            /**
+             * @event Visualizer#add:link
+             * @type {Object}
+             */
+            this.emit('add:link', link);
             this.links.push(link);
             this.update();
         },
 
+        /**
+         * Метод добавляет дерево (группу) пользователей.
+         * 
+         * @param   {Object} graph
+         * @return  {*}
+         */
         addGraph: function(graph) {
             var self = this;
 
@@ -77,6 +129,11 @@ define(function(require) {
             this.update();
         },
 
+        /**
+         * Обработчик события "tick" вызываемого в Force layout.
+         * 
+         * @return {*}
+         */
         tick: function() {
             this.link
                 .attr('x1', function(d) { return d.source.x; })
@@ -89,6 +146,12 @@ define(function(require) {
             });
         },
 
+        /**
+         * Метод обновляет ссылки текущих узлов.
+         * Ссылки визуализируются линиями.
+         * 
+         * @return {*}
+         */
         updateLinks: function() {
             this.link = this.link.data(this.links);
 
@@ -98,6 +161,12 @@ define(function(require) {
             this.link.exit().remove();
         },
 
+        /**
+         * Метод обновляет текущие узлы.
+         * Узел визуализируется идентификатором и изображением.
+         * 
+         * @return {*}
+         */
         updateNodes: function() {
             this.node = this.node.data(this.nodes);
 
@@ -125,6 +194,14 @@ define(function(require) {
             this.node.exit().remove();
         },
 
+
+        /**
+         * Метод реализует поиск узла по идентификатору.
+         * Найденный узел кэшируется.
+         * 
+         * @param  {String} id Идентификатор узла
+         * @return {*}
+         */
         findNode: function(id) {
             if(typeof this.nodeCache[id] !== 'undefined') {
                 return this.nodeCache[id];

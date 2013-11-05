@@ -1,11 +1,19 @@
 define(function(require) {
     'use strict';
 
+    /**
+     * @class
+     * @classdesc Класс реализует методы получения информации о пользователе на основе разбора сраницы.
+     */
     var UserProfile = function(node) {
         this.parse(node);
     };
 
     UserProfile.prototype = {
+        /**
+         * @param  {String} node HTML
+         * @return {*}
+         */
         parse: function(node) {
             var doc = document.implementation.createHTMLDocument('');
 
@@ -23,6 +31,12 @@ define(function(require) {
             }).get();
         },
 
+        /**
+         * Метод получения данных необходимых для визуализации узла.
+         * 
+         * @param  {Number} group
+         * @return {Object}
+         */
         pure: function(group) {
             return {
                 id: this.username,

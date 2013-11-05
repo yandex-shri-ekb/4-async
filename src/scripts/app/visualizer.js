@@ -60,8 +60,8 @@ define(function(require) {
          */
         reset: function() {
             this.nodeCache = {};
-            while(this.nodes.pop()) {}
-            while(this.links.pop()) {}
+            this.nodes.length = 0;
+            this.links.length = 0;
             this.update();
         },
 

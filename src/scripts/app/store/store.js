@@ -96,8 +96,8 @@ define(function(require) {
          */
         clear: function() {
             adapter.clear();
-            this.groups = [];
-            this.visualizationData = [];
+            this.groups.length = 0;
+            this.visualizationData.length = 0;
         }
     };
 

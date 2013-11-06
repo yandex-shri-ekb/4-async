@@ -1,7 +1,7 @@
 define(function(require) {
     'use strict';
 
-    var EventEmitter = require('app/event_emitter');
+    var EventEmitter = require('app/utils/event_emitter');
 
     /** 
      * @class

@@ -2,8 +2,9 @@ define(function(require) {
     'use strict';
 
     var UserProfile = require('app/parser/user_profile'),
-        EventEmitter = require('./event_emitter'),
+        EventEmitter = require('app/utils/event_emitter'),
         Config = require('app/config/crawler_config'),
+        Queue = require('app/utils/queue'),
         Store = require('app/store/store');
 
     /**
@@ -13,22 +14,12 @@ define(function(require) {
     var Crawler = function() {
         EventEmitter.call(this);
         this.userProfileCache = {};
-        this.requestDelay = 0;
+        this.requests = {};
+        this.isLaunched = false;
+        this.queue = new Queue();
     };
 
     Crawler.prototype = $.extend({
-        /**
-         * Метод реализует последовательный вызов через заданный интервал
-         * 
-         * @return {Object} Promise
-         */
-        wait: function() {
-            var d = $.Deferred();
-            setTimeout(d.resolve, this.requestDelay);
-            this.requestDelay += Config.requestDelay;
-            return d.promise();
-        },
-
         /**
          * Метод запрашивает данные о корне для группы пользователей.
          * Пройденные узлы кэшируются.
@@ -55,7 +46,7 @@ define(function(require) {
          */
         getUserProfile: function (url) {
             var self = this;
-            if(typeof this.userProfileCache[url] !== 'undefined') {
+            if(typeof self.userProfileCache[url] !== 'undefined') {
                 return {
                     then: function(callback) {
                         callback(self.userProfileCache[url]);
@@ -63,9 +54,10 @@ define(function(require) {
                 };
             }
 
-            return this.wait().then(function() {
-                return $.get(url);
+            return self.queue.wait().then(function() {
+                return self.requests[url] = $.get(url);
             }).then(function (response) {
+                delete self.requests[url];
                 return new UserProfile(response);
             });
         },
@@ -82,15 +74,20 @@ define(function(require) {
          * @return {*}
          */
         detour: function(url, parent, group) {
+            if(!this.isLaunched) {
+                return;
+            }
+            
             var self = this;
 
             group.waitPush();
-            
+
             self.getUserProfile(url).then(function(userProfile){
                 /**
                  * Если данный пользователь уже находится в группе, прерывается выполнение фунции.
                  * Данное поведение позволяет разрешить коллизии созданные Хабрахабром.
                  */
+                
                 if(group.contains(userProfile.username)) {
                     group.diminish();
                     return;
@@ -128,6 +125,8 @@ define(function(require) {
         start: function(username) {
             var self = this;
 
+            self.isLaunched = true;
+
             self.getRoot(Config.usersUrl + username).then(function (root) {
                 var group = Store.createGroup(root.username);
 
@@ -144,6 +143,21 @@ define(function(require) {
                     self.detour(child, root, group);
                 });
             });
+        },
+
+        /**
+         * Метод останавливает обход, очищает очередь запросов, отменяет активные запросы.
+         *
+         * @return {*}
+         */
+        stop: function() {
+            this.isLaunched = false;
+            this.queue.clear();
+
+            var keys = Object.keys(this.requests);
+            for (var i = 0, len = keys.length; i < len; i++) {
+                this.requests[keys[i]].abort();
+            }
         }
     }, EventEmitter.prototype);
 

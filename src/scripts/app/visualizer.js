@@ -2,7 +2,7 @@ define(function(require) {
     'use strict';
 
     var d3 = require('d3'),
-        EventEmitter = require('./event_emitter'),
+        EventEmitter = require('app/utils/event_emitter'),
         Config = require('app/config/ui_config');
 
     /**

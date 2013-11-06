@@ -78,17 +78,25 @@ define(function(require) {
             }
         };
 
+        var generalReset = function() {
+            visualizer.reset();
+            crawler.stop();
+            Control.clearStates();
+            Store.clear();
+        };
+
         /** Обработка событий UI */
         
-        ControlElements.resetButton.on('click', $.proxy(visualizer.reset, visualizer));
-        ControlElements.clearStorageButton.on('click', $.proxy(Store.clear, Store));
+        ControlElements.resetButton.on('click', generalReset);
+
+        ControlElements.clearStorageButton.on('click', function() {
+            generalReset();
+            Store.reset();
+        });
+
         ControlElements.startButton.on('click', function() {
-            visualizer.reset();
-            crawler.requestDelay = 0;
-            Control.clearStates();
-
+            generalReset();
             var qty = ControlElements.qtyInput.val();
-
             for (var i = 0; i < qty; i++) {
                 startBuild(userList[i]);
             }

@@ -94,9 +94,19 @@ define(function(require) {
          * 
          * @return {*}
          */
-        clear: function() {
+        reset: function() {
             adapter.clear();
             this.groups.length = 0;
+            this.visualizationData.length = 0;
+        },
+
+        /**
+         * Функция удаляет группы, формирование которых не было завершено.
+         * 
+         * @return {*}
+         */
+        clear: function() {
+            this.groups = adapter.get('groups') || [];
             this.visualizationData.length = 0;
         }
     };

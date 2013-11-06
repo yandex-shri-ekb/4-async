@@ -6,7 +6,7 @@ module.exports = function(grunt) {
         uglify : {
             main : {
                 options : {
-                    banner : 'javascript:'
+                    banner : 'javascript:void'
                 },
                 files : {
                     'build/bookmarklet.min.js' : 'bookmarklet.js'

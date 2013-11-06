@@ -4,6 +4,11 @@ define([
     'd3'
 ], function(d3) {
 
+    /**
+     * Графическое представление дерева.
+     * @constructor
+     * @param {Object} config настройки
+     */
     var Tree = function(config) {
         config = config || {};
         var w = document.documentElement.clientWidth - 20,
@@ -45,9 +50,8 @@ define([
 
     /**
      * Добавляет узел в дерево.
-     *
      * @param {Object} node узел
-     * @returns {boolean} результат добавления
+     * @return {boolean} результат добавления
      */
     Tree.prototype.addNode = function(node) {
         var n = {
@@ -103,7 +107,7 @@ define([
             .attr('xlink:href', function(d) { return d.avatar; })
             .attr('x', -12)
             .attr('y' -12)
-            .attr('opacity', 0.1)
+            .attr('opacity', .1)
             .attr('width', 24)
             .attr('height', 24);
 

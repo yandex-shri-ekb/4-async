@@ -3,39 +3,36 @@
 define(function() {
 
     /**
-     * Небольшой класс для упрощения работы с локальным хранилищем.
-     *
+     * Работа с локальным хранилищем.
      * @constructor
      */
-    var LS = function() {
+    var Cache = function() {
     };
 
     /**
      * Префикс для ключей с данными о пользователях.
-     *
+     * @const
      * @type {string}
      */
-    LS.prototype.USER_PREFIX = 'habraUserv2.';
+    Cache.prototype.USER_PREFIX = 'habraUserv2.';
 
     /**
      * Получение пользователя из localStorage.
-     *
      * @param {Object} username пользователь
-     * @returns {Object} пользователь
+     * @return {Object} пользователь
      */
-    LS.prototype.loadUser = function(username) {
+    Cache.prototype.loadUser = function(username) {
         return JSON.parse(window.localStorage.getItem(this.USER_PREFIX + username));
     };
 
     /**
      * Сохранение пользователя в localStorage.
-     *
      * @param {Object} user
      */
-    LS.prototype.saveUser = function(user) {
+    Cache.prototype.saveUser = function(user) {
         window.localStorage.setItem(this.USER_PREFIX + user.name, JSON.stringify(user));
     };
 
-    return LS;
+    return Cache;
 
 });

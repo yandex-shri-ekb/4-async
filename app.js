@@ -3,12 +3,11 @@
 define([
     'jquery',
     'tree',
-    'ls'
-], function($, Tree, LS) {
+    'cache'
+], function($, Tree, Cache) {
 
     /**
-     * Инициализирует приложение.
-     *
+     * Приложение.
      * @constructor
      * @param {Object} config настройки
      */
@@ -31,8 +30,8 @@ define([
         // Визуализация дерева
         this.tree = new Tree;
 
-        // Работа с localStorage
-        this.ls = new LS;
+        // Работа с кешем
+        this.cache = new Cache;
 
         // Очередь детей, о которых надо получить информацию и добавить в дерево
         this.queue = [];
@@ -63,14 +62,14 @@ define([
             });
         }
 
-        // Каждые полсекунды будем доставать из очереди пользователя
+        // Через определённые промежутки времени
+        // будем доставать из очереди пользователя
         setInterval(function() {
             if (self.queue.length > 0) {
                 var u = self.queue.shift();
-
-                if (self.checkUser(u))
+                if (self.checkUser(u)) {
                     return;
-
+                }
                 // Получать о нём информацию и добавлять в дерево
                 self.getUserInfo(u).then(function(user) {
                     $.proxy(self.addUser(user), self);
@@ -81,23 +80,20 @@ define([
 
     /**
      * Проверяет, есть ли пользователь с указанным именем в чёрном списке.
-     *
      * @param {string} name имя пользователя
-     * @returns {boolean}
+     * @return {boolean}
      */
     App.prototype.checkUser = function(name) {
-        return !! (this.blackList.indexOf(name) > -1);
+        return this.blackList.indexOf(name) > -1;
     };
 
     /**
      * Добавляет пользователя в дерево, а имена его детей в очередь на обход.
-     *
      * @param {Object} user пользователь
      */
     App.prototype.addUser = function(user) {
         this.tree.addNode(user);
         this.tree.update();
-
         if (user.children.length > 0) {
             for (var i = 0, l = user.children.length; i < l; i++)
                 this.queue.push(user.children[i]);
@@ -106,14 +102,12 @@ define([
 
     /**
      * Ищет первого зарегистрировавшегося, с которого началась ветка.
-     *
      * @param {Object} user пользователь
      * @return {Object} Deferred-объект
      */
     App.prototype.findRoot = function(user) {
         var d;
-        // Если у пользователя есть родитель, значит пока он нас не интересует;
-        // запрашиваем информацию о его родителе
+        // Если у пользователя есть родитель, значит запрашиваем информацию о его родителе
         if (user.parent) {
             var self = this;
             d = this.getUserInfo(user.parent).then(function(parent) {
@@ -128,13 +122,14 @@ define([
 
     /**
      * Находит на странице имена либо всех, либо первых n пользователей.
-     *
      * @param {number} n максимальное число имён пользователей
      * @return {Array} имена пользователей
      */
     App.prototype.getStartUsernames = function(n) {
-        var users = $('.username a');
-        for (var i = 0, usernames = [], n = n || users.length; i < n; i++) {
+        var users = $('.username a'),
+            usernames = [];
+        n = n || users.length;
+        for (var i = 0; i < n; i++) {
             usernames.push(users[i].innerHTML);
         }
         return usernames;
@@ -142,14 +137,13 @@ define([
 
     /**
      * Получает информацию о запрашиваемом пользователе из localStorage, либо со страницы его профиля.
-     *
      * @param {string} username ник пользователя
      * @return {Object} Deferred-объект
      */
     App.prototype.getUserInfo = function(username) {
         var d = $.Deferred(),
             self = this,
-            user = this.ls.loadUser(username);
+            user = this.cache.loadUser(username);
 
         // Если пользователя нет в кеше, делаем запрос
         if (user === null) {
@@ -158,7 +152,6 @@ define([
                     self.delay--;
 
                     var user = {};
-
                     user.name = username; // $(data).find('.user_header h2.username a').text();
                     user.avatar = $(data).find('.user_header .avatar img').attr('src');
                     user.parent = $(data).find('#invited-by').text() || null;
@@ -172,7 +165,7 @@ define([
                     }
 
                     // Кешируем в localStorage
-                    self.ls.saveUser(user);
+                    self.cache.saveUser(user);
 
                     d.resolve(user);
                 });

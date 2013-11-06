@@ -12,9 +12,7 @@ define('graph', ['d3', 'jquery'], function(d3, $) {
         var defaults = {
             distance: 100,
             linkDistance: 100,
-            charge: -100,
-            w: 800,
-            h: 600
+            charge: -100
         };
 
         var graph = this;
@@ -22,14 +20,10 @@ define('graph', ['d3', 'jquery'], function(d3, $) {
         this.options = $.extend(defaults, options);
 
         var $window = $(window),
-            $body = $(document.body),
             w = $window.width(),
             h = $window.height();
 
         this.svg = d3.select(canvas).append('svg');
-
-        //root.x = this.options.w / 2;
-        //root.y = this.options.h / 2;
 
         // https://github.com/mbostock/d3/wiki/Force-Layout#wiki-nodes
         this.nodes = [];
@@ -55,10 +49,6 @@ define('graph', ['d3', 'jquery'], function(d3, $) {
                 .attr("y1", function(d) { return d.source.y; })
                 .attr("x2", function(d) { return d.target.x; })
                 .attr("y2", function(d) { return d.target.y; });
-
-            /*graph.node
-                .attr("cx", function(d) { return d.x; })
-                .attr("cy", function(d) { return d.y; });*/
 
             graph.node.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
         });
@@ -166,13 +156,6 @@ define('graph', ['d3', 'jquery'], function(d3, $) {
                 .attr("class", "node")
                 .call(graph.force.drag);
 
-        /*elems.append("image")
-            .attr("xlink:href", function(d) { return d.image })
-            .attr("x", -8)
-            .attr("y", -8)
-            .attr("width", 16)
-            .attr("height", 16);*/
-
         elems.append("image")
             .attr("xlink:href", function(d) { return d.image })
             .attr("x", function(d) { return -calculateSize(d.size) / 2 })
@@ -188,26 +171,6 @@ define('graph', ['d3', 'jquery'], function(d3, $) {
         elems.append('title')
             .text(function(d) { return d.name; });
 
-        /*graph.node.append("text")
-            .attr("dx", 12)
-            .attr("dy", ".35em")
-            .text(function(d) { return d.name });*/
-        /*graph.node = graph.svg.selectAll("circle.node")
-            .data(graph.nodes, function(d) { return d.name; })
-            .style("fill", function(d) { return d.o.fill; });
-
-        graph.node.transition()
-            .attr("r", function(d) { return 5 + Math.floor(d.size * 2 / 5) / 2 });
-
-        // Enter any new nodes.
-        graph.node.enter().append("svg:circle")
-            .attr("class", "node")
-            .attr("cx", function(d) { return d.x; })
-            .attr("cy", function(d) { return d.y; })
-            .attr("r", function(d) { return 5 + Math.floor(d.size * 2 / 5) / 2 })
-            .style("fill", function(d) { return d.o.fill; })
-            .call(graph.force.drag)
-            .append('title').text(function(d) { return d.name; });*/
         graph.node.exit().remove();
     };
 

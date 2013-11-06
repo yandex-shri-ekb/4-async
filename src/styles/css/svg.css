@@ -8,14 +8,15 @@ svg
 .link
 {
     stroke: #aaa;
+    stroke-dasharray: 0, 2, 1;
 }
 
 .node_text
 {
-    fill: #ccc;
+    fill: #333;
 }
 
-.node:hover .node_text
+.node:not(:hover) .node_text
 {
-    fill: #333;
+    display: none;
 }

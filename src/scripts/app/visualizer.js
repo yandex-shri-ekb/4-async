@@ -40,6 +40,7 @@ define(function(require) {
 
             this.node = svg.selectAll('g.node');
             this.link = svg.selectAll('line.link');
+            this.marker = svg.append('svg:defs').selectAll('marker');
         },
 
         /**
@@ -140,7 +141,7 @@ define(function(require) {
                 .attr('y1', function(d) { return d.source.y; })
                 .attr('x2', function(d) { return d.target.x; })
                 .attr('y2', function(d) { return d.target.y; });
-
+            
             this.node.attr('transform', function(d) {
                 return 'translate(' + d.x + ',' + d.y + ')';
             });
@@ -156,9 +157,24 @@ define(function(require) {
             this.link = this.link.data(this.links);
 
             this.link.enter().insert('line')
-                .attr('class', 'link');
+                .attr('class', 'link')
+                .attr('marker-end', 'url(#end)');
 
             this.link.exit().remove();
+
+            this.marker = this.marker.data(['end']);
+
+            this.marker.enter().append('svg:marker')
+                .attr('id', String)
+                .attr('viewBox', '0 -5 10 10')
+                .attr('refX', 32)
+                .attr('markerWidth', 8)
+                .attr('markerHeight', 8)
+                .attr('orient', 'auto')
+                .append('svg:path')
+                    .attr('d', 'M0,-5L10,0L0,5');
+
+            this.marker.exit().remove();
         },
 
         /**
@@ -183,10 +199,10 @@ define(function(require) {
                 });
 
             nodeEnter.append('image')
-                .attr('x', '-16px')
-                .attr('y', '-16px')
-                .attr('width', '32px')
-                .attr('height', '32px')
+                .attr('x', '-12px')
+                .attr('y', '-12px')
+                .attr('width', '24px')
+                .attr('height', '24px')
                 .attr('xlink:href', function(d) {
                     return d.avatar;
                 });

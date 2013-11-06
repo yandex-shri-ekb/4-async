@@ -1,6 +1,3 @@
-/*globals jQuery, console*/
-/*jslint browser: true*/
-
 (function ($) {
     'use strict';
 

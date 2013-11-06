@@ -7,6 +7,8 @@
     "grunt-bookmarklet-thingy": "~0.2.0",
     "grunt-preprocess": "~3.0.1",
     "grunt-jsbeautifier": "~0.2.3",
-    "grunt-browserify": "~1.2.11"
+    "grunt-browserify": "~1.2.11",
+    "grunt-bower-task": "~0.3.2",
+    "load-grunt-tasks": "~0.2.0"
   }
 }

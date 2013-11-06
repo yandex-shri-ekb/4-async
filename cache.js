@@ -3,34 +3,43 @@
 define(function() {
 
     /**
-     * Работа с локальным хранилищем.
+     * Работа с локальным хранилищем localStorage.
      * @constructor
      */
     var Cache = function() {
     };
 
     /**
-     * Префикс для ключей с данными о пользователях.
-     * @const
-     * @type {string}
+     * Получает данные из хранилища.
+     * @param {string} id
+     * @return {*} данные
      */
-    Cache.prototype.USER_PREFIX = 'habraUserv2.';
-
-    /**
-     * Получение пользователя из localStorage.
-     * @param {Object} username пользователь
-     * @return {Object} пользователь
-     */
-    Cache.prototype.loadUser = function(username) {
-        return JSON.parse(window.localStorage.getItem(this.USER_PREFIX + username));
+    Cache.prototype.get = function(id) {
+        return JSON.parse(window.localStorage.getItem(id));
     };
 
     /**
-     * Сохранение пользователя в localStorage.
-     * @param {Object} user
+     * Сохраняет данные в хранилище.
+     * @param {string} id уникальный идентификатор записи
+     * @param {*} value данные
      */
-    Cache.prototype.saveUser = function(user) {
-        window.localStorage.setItem(this.USER_PREFIX + user.name, JSON.stringify(user));
+    Cache.prototype.set = function(id, value) {
+        window.localStorage.setItem(id, JSON.stringify(value));
+    };
+
+    /**
+     * Очищает хранилище.
+     */
+    Cache.prototype.clear = function() {
+        window.localStorage.clear();
+    };
+
+    /**
+     * Подсчитывает количество записей в кеше.
+     * @return {number} количество записей в кеше
+     */
+    Cache.prototype.count = function() {
+        return window.localStorage.length;
     };
 
     return Cache;

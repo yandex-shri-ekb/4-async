@@ -41,6 +41,9 @@ define([
 
         // Величина паузы между запросами к серверу, мс
         this.timeout = 500;
+
+        // Префикс для кеширования данных о пользователях
+        this.USER_PREFIX = 'habraUserv2.';
     };
 
     /**
@@ -143,7 +146,7 @@ define([
     App.prototype.getUserInfo = function(username) {
         var d = $.Deferred(),
             self = this,
-            user = this.cache.loadUser(username);
+            user = this.cache.get(this.USER_PREFIX + username);
 
         // Если пользователя нет в кеше, делаем запрос
         if (user === null) {
@@ -165,7 +168,7 @@ define([
                     }
 
                     // Кешируем в localStorage
-                    self.cache.saveUser(user);
+                    self.cache.set(self.USER_PREFIX + user.name, user);
 
                     d.resolve(user);
                 });

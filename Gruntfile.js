@@ -64,7 +64,18 @@ module.exports = function (grunt) {
                     }
                 }
             }
-        }
+        },
+          uglify: {
+            options: {
+              mangle: false
+            },
+            files: { 
+                src: 'chrome_extension/*.js',
+                dest: 'chrome_extension/',
+                expand: true,
+                flatten: true
+            }
+          }
     });
 
     grunt.registerTask('default', [
@@ -72,6 +83,7 @@ module.exports = function (grunt) {
         'jsbeautifier',
         'jslint',
         'browserify',
+        'uglify',
         'bookmarklet',
         'preprocess'
     ]);

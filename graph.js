@@ -21,11 +21,12 @@ define('graph', ['d3', 'jquery'], function(d3, $) {
 
         this.options = $.extend(defaults, options);
 
-        this.svg = d3.select(canvas)
-            .append('svg')
-            .style('display', 'block')
-            .attr('width', '100%')
-            .attr('height', '100%');
+        var $window = $(window),
+            $body = $(document.body),
+            w = $window.width(),
+            h = $window.height();
+
+        this.svg = d3.select(canvas).append('svg');
 
         //root.x = this.options.w / 2;
         //root.y = this.options.h / 2;
@@ -45,7 +46,7 @@ define('graph', ['d3', 'jquery'], function(d3, $) {
             .distance(this.options.distance)
             .linkDistance(this.options.linkDistance)
             .charge(this.options.charge)
-            .size([this.options.w, this.options.h])
+            .size([w, h])
             .start();
 
         this.force.on('tick', function() {
@@ -55,21 +56,33 @@ define('graph', ['d3', 'jquery'], function(d3, $) {
                 .attr("x2", function(d) { return d.target.x; })
                 .attr("y2", function(d) { return d.target.y; });
 
-            graph.node
+            /*graph.node
                 .attr("cx", function(d) { return d.x; })
-                .attr("cy", function(d) { return d.y; });
-        })
+                .attr("cy", function(d) { return d.y; });*/
+
+            graph.node.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+        });
+
+        $window.on('resize', function() {
+            var w = $window.width(),
+                h = $window.height();
+            graph.svg
+                .attr('width', w - 20)
+                .attr('height', h - 20);
+            graph.force.size([w - 20, h - 20]);
+        });
     };
 
     /**
      * @param {string} name
+     * @param {string} image
      * @param {?int} size
      * @param {?Object} options
      */
-    Graph.prototype.add = function(name, size, options) {
+    Graph.prototype.add = function(name, image, size, options) {
         size = size || 0;
-        options = $.extend({fill: '#222'}, options);
-        var node = {name: name, size:size, o: options};
+        options = $.extend({}, options);
+        var node = {name: name, image: image, size: size, o: options};
         this.nodes.push(node);
 
         return node;
@@ -82,6 +95,10 @@ define('graph', ['d3', 'jquery'], function(d3, $) {
     Graph.prototype.linkNodes = function (source, target) {
         if(!source || !target) {
             throw new Error('Cannot link empty nodes');
+        }
+
+        if(this.isLinkExists(source, target)) {
+            return this;
         }
 
         this.links.push({
@@ -107,17 +124,28 @@ define('graph', ['d3', 'jquery'], function(d3, $) {
     };
 
     /**
+     * @param {Object} source
+     * @param {Object} target
+     */
+    Graph.prototype.isLinkExists = function (source, target) {
+        for(var i = 0, l = this.links.length; i < l; i++) {
+            if (this.links[i].source === source && this.links[i].target === target) {
+                return true;
+            }
+        }
+
+        return false;
+    };
+
+    /**
      */
     Graph.prototype.update = function() {
         var graph = this;
 
-        graph.force
-            .nodes(graph.nodes)
-            .links(graph.links)
-            .start();
+        graph.force.start();
 
         graph.link = this.svg.selectAll('.link')
-           .data(this.force.links(), function(d) { return d.source.name + '-' + d.target.name });
+           .data(graph.links);
 
         // Enter any new links.
         graph.link.enter().insert("svg:line", ".node")
@@ -131,7 +159,40 @@ define('graph', ['d3', 'jquery'], function(d3, $) {
         graph.link.exit().remove();
 
         // Update the nodes…
-        graph.node = this.svg.selectAll("circle.node")
+        graph.node = graph.svg.selectAll(".node").data(graph.nodes);
+
+        var elems = graph.node.enter()
+            .append("g")
+                .attr("class", "node")
+                .call(graph.force.drag);
+
+        /*elems.append("image")
+            .attr("xlink:href", function(d) { return d.image })
+            .attr("x", -8)
+            .attr("y", -8)
+            .attr("width", 16)
+            .attr("height", 16);*/
+
+        elems.append("image")
+            .attr("xlink:href", function(d) { return d.image })
+            .attr("x", function(d) { return -calculateSize(d.size) / 2 })
+            .attr("y", function(d) { return -calculateSize(d.size) / 2 })
+            .attr("width", function(d) { return calculateSize(d.size) })
+            .attr("height", function(d) { return calculateSize(d.size) });
+
+        elems.append("text")
+            .attr("dx", 12)
+            .attr("dy", ".35em")
+            .text(function(d) { return d.name });
+
+        elems.append('title')
+            .text(function(d) { return d.name; });
+
+        /*graph.node.append("text")
+            .attr("dx", 12)
+            .attr("dy", ".35em")
+            .text(function(d) { return d.name });*/
+        /*graph.node = graph.svg.selectAll("circle.node")
             .data(graph.nodes, function(d) { return d.name; })
             .style("fill", function(d) { return d.o.fill; });
 
@@ -146,10 +207,24 @@ define('graph', ['d3', 'jquery'], function(d3, $) {
             .attr("r", function(d) { return 5 + Math.floor(d.size * 2 / 5) / 2 })
             .style("fill", function(d) { return d.o.fill; })
             .call(graph.force.drag)
-            .append('title').text(function(d) { return d.name; });
+            .append('title').text(function(d) { return d.name; });*/
         graph.node.exit().remove();
     };
 
-    return Graph;
+    function calculateSize(size) {
+        if(size > 15) {
+            return 32;
+        }
+        else if(size > 10) {
+            return 24;
+        }
+        else if(size > 5) {
+            return 20;
+        }
+        else {
+            return 16;
+        }
+    }
 
+    return Graph;
 });

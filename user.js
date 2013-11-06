@@ -7,11 +7,12 @@ define('user', [], function() {
      * @constructor
      * @param {string} nickname
      * @param {?string} url
+     * @param {?string} avatar
      */
-    var User = function(nickname, url) {
+    var User = function(nickname, url, avatar) {
         this.nickname = nickname;
         this.url = url || '/users/' + nickname + '/';
-        this.avatar = null;
+        this.avatar = avatar || null;
 
         // пригласил на сайт
         this.friends = [];

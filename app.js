@@ -32,17 +32,21 @@ define('app', ['jquery', 'graph', 'user', 'storage'], function($, Graph, User, s
     App.prototype.init = function(initUsers) {
         var app = this,
             $body = $(document.body),
-            w = 1200,
-            h = 800,
-            $canvas = $('<div id="canvas" style="margin: 0 auto;"></div>')
-                .css('width', w + 'px')
-                .css('height', h + 'px'),
+            $canvas = $('<div id="canvas"></div>'),
             $controls = $('<div id="controls"></div>');
 
         $('<button id="btn-stop">stop</button>')
             .appendTo($controls)
             .on('click', function() {
                 app.isStoped = true;
+                return false;
+            });
+
+        $('<button id="btn-continue">continue</button>')
+            .appendTo($controls)
+            .on('click', function() {
+                app.isStoped = false;
+                app.tick();
                 return false;
             });
 
@@ -56,8 +60,8 @@ define('app', ['jquery', 'graph', 'user', 'storage'], function($, Graph, User, s
         root.avatar = '/favicon.ico';
 
         app.queue = [];
-        app.graph = new Graph($canvas.get(0), {w:w, h:h});
-        app.addToGraph(root, 40, {fill: '#959595'});
+        app.graph = new Graph($canvas.get(0), {});
+        app.addToGraph(root, 40);
 
         for(var i = 0, l = initUsers.length; i < l; i++) {
             app.queue.push(initUsers[i]);
@@ -82,6 +86,11 @@ define('app', ['jquery', 'graph', 'user', 'storage'], function($, Graph, User, s
      */
     App.prototype.tick = function() {
         var app = this;
+
+        if(app.isStoped) {
+            return;
+        }
+
         app.nTicks++;
 
         var user = app.queue.shift();
@@ -91,7 +100,7 @@ define('app', ['jquery', 'graph', 'user', 'storage'], function($, Graph, User, s
 
         console.log('Request for ' + user.nickname);
         app.requestUser(user).then(function(user) {
-            var node = app.addToGraph(user),
+            var node = app.findNode(user) || app.addToGraph(user),
                 parentNode = app.findNode(user.invitedBy);
 
             console.log(user);
@@ -197,7 +206,7 @@ define('app', ['jquery', 'graph', 'user', 'storage'], function($, Graph, User, s
     App.prototype.addToGraph = function(user, size, options) {
         size = size || user.friends.length;
         options = options || {};
-        return this.graph.add(user.nickname, size, options);
+        return this.graph.add(user.nickname, user.avatar, size, options);
     };
 
 

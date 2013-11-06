@@ -3,14 +3,14 @@
     <div class="layout_container layout_container-menu">
         <div class="menu_group">
             <div class="menu_control">
-                <label for="control_qty">Кол-во пользователей</label>
-                <input id="control_qty" class="menu_control_input menu_control_input-number" type="number" min="1" max="9" value="2">
+                <label for="{{= it.qty }}">Кол-во пользователей</label>
+                <input id="{{= it.qty }}" class="menu_control_input menu_control_input-number" type="number" min="1" max="9" value="2">
             </div>
         </div>
         <div class="menu_group">
-            <button id="control_start" type="button" class="button menu_button">Построить</button>
-            <button id="control_reset" type="button" class="button menu_button">Сбросить</button>
-            <button id="control_clear-storage" type="button" class="button menu_button">Очистить хранилище</button>
+            <button id="{{= it.start }}" type="button" class="button menu_button">Построить</button>
+            <button id="{{= it.reset }}" type="button" class="button menu_button">Сбросить</button>
+            <button id="{{= it.clearStorage }}" type="button" class="button menu_button">Очистить хранилище</button>
         </div>
         <div id="states" class="menu_group {{= it.states }}"></div>
     </div>

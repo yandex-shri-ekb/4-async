@@ -16,6 +16,10 @@ define(function(require) {
             tagret = tagret || document.body;
             $(tagret).html($styles).append(template({
                 svg: Config.svgContainerClass,
+                qty: Config.controls.qtyInputId,
+                start: Config.controls.startButtonId,
+                reset: Config.controls.resetButtonId,
+                clearStorage: Config.controls.clearStorageButtonId,
                 states: Config.statesContainerClass
             }));
         }

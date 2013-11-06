@@ -2,7 +2,7 @@ define(function(require) {
     'use strict';
 
     var $ = require('jquery'),
-            Config = require('app/config/ui_config');
+        Config = require('app/config/ui_config');
 
     var Template = {
         buildProgress: require('doT!templates/build_progress'),
@@ -15,11 +15,11 @@ define(function(require) {
         cacheElements: function() {
             $el = {
                 body: $(document.body),
-                qtyInput: $('#control_qty'),
-                startButton: $('#control_start'),
-                resetButton: $('#control_reset'),
-                clearStorageButton: $('#control_clear-storage'),
-                statesContainer: $('.' + Config.statesContainerClass)
+                qtyInput: $.byId(Config.controls.qtyInputId),
+                startButton: $.byId(Config.controls.startButtonId),
+                resetButton: $.byId(Config.controls.resetButtonId),
+                clearStorageButton: $.byId(Config.controls.clearStorageButtonId),
+                statesContainer: $.byClass(Config.statesContainerClass)
             };
 
             return $el;
@@ -27,12 +27,13 @@ define(function(require) {
 
         startBuild: function(number) {
             $el.statesContainer.append(Template.buildProgress({
+                idPrefix: Config.stateIdPrefix,
                 group: number
             }));
         },
 
         completeBuild: function(number) {
-            $('#state' + number).replaceWith(Template.buildComplete({
+            $.byId(Config.stateIdPrefix + number).replaceWith(Template.buildComplete({
                 group: number
             }));
         },

@@ -65,17 +65,17 @@ module.exports = function (grunt) {
                 }
             }
         },
-          uglify: {
+        uglify: {
             options: {
-              mangle: false
+                mangle: false
             },
-            files: { 
+            files: {
                 src: 'chrome_extension/*.js',
                 dest: 'chrome_extension/',
                 expand: true,
                 flatten: true
             }
-          }
+        }
     });
 
     grunt.registerTask('default', [

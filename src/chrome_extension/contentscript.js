@@ -19,20 +19,26 @@
         handleUser,
         buildUserTree;
 
-    sendUser = function (user) {
-        handleUser(user.parent_url);
+    sendUser = function (url) {
+        var user = cache.get(url);
 
-        user.children_urls.forEach(function (child) {
-            handleUser(child);
-        });
+        if (user) {
+            if (user.parent_url) {
+                handleUser(user.parent_url);
+            }
 
-        chrome.runtime.sendMessage({
-            action: "userParsed",
-            user: user
-        });
+            user.children_urls.forEach(function (child) {
+                handleUser(child);
+            });
 
-        queue.take(user.url);
-        parsed_users.push(user.url);
+            chrome.runtime.sendMessage({
+                action: "userParsed",
+                user: user
+            });
+        }
+
+        queue.take(url);
+        parsed_users.push(url);
 
         if (queue.isEmpty()) {
             chrome.runtime.sendMessage({
@@ -53,7 +59,7 @@
 
         if (cache.get(url)) {
             setTimeout(function () {
-                sendUser(cache.get(url));
+                sendUser(url);
             }, 0);
             return;
         }
@@ -63,7 +69,7 @@
                 var user = new Parser($(html)).getUser();
 
                 cache.set(url, user);
-                sendUser(user);
+                sendUser(url);
             })
             .fail(function () {
                 if (attempt >= max_retry_attempts) {

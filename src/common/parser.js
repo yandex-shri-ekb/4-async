@@ -14,12 +14,18 @@
     };
 
     Parser.prototype.getUser = function () {
+        var $username = this.document.find('h2.username');
+
+        if ($username) {
+            return null;
+        }
+
         return {
             url: this.document.find('.avatar').attr('href'),
-            name: this.document.find('h2.username').text(),
+            name: $username.text(),
             img: this.document.find('img[alt="avatar"]').attr('src'),
             parent_url: this.document.find('#invited-by').attr('href'),
-            children_urls: this.document.find('[rel="friend"]').map(function () {
+            children_urls: this.document.find('li').not('.banned').find('[rel="friend"]').map(function () {
                 return $(this).attr('href');
             }).toArray()
         };

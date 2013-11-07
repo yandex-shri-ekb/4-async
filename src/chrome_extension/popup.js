@@ -15,9 +15,12 @@
         }
 
         new_user.children = [];
-        users.push(new_user);
 
         users.forEach(function (user) {
+            if (!user.children) {
+                user.children = [];
+            }
+
             if (user.url === new_user.parent_url && user.children.indexOf(new_user) === -1) {
                 user.children.push(new_user);
             }
@@ -26,6 +29,8 @@
                 new_user.children.push(user);
             }
         });
+
+        users.push(new_user);
     }
 
     function getRootUsers() {
@@ -60,6 +65,8 @@
             case 'userParsed':
                 addUser(request.user);
                 tree.update(getRootUsers());
+                console.log(getRootUsers());
+                window.r = getRootUsers();
                 break;
             case 'lastUserSent':
                 spinner.stop();

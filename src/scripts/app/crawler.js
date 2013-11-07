@@ -83,11 +83,12 @@ define(function(require) {
             group.waitPush();
 
             self.getUserProfile(url).then(function(userProfile){
+                self.queue.diminish();
+
                 /**
                  * Если данный пользователь уже находится в группе, прерывается выполнение фунции.
                  * Данное поведение позволяет разрешить коллизии созданные Хабрахабром.
                  */
-                
                 if(group.contains(userProfile.username)) {
                     group.diminish();
                     return;

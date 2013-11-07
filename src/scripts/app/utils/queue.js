@@ -11,9 +11,12 @@ define(function(require) {
     Queue.prototype = {
         wait: function() {
             var d = $.Deferred();
-            this.queue.push(setTimeout(d.resolve, this.requestDelay));
-            this.requestDelay += Config.requestDelay;
+            this.queue.push(setTimeout(d.resolve, Config.requestDelay * this.requestDelay++));
             return d.promise();
+        },
+
+        diminish: function() {
+            this.requestDelay--;
         },
 
         clear: function() {

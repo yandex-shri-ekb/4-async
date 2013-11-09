@@ -1,0 +1,9 @@
+{
+    "name": "5-async-homework",
+    "version": "0.0.1",
+    "devDependencies": {
+        "grunt": "latest",
+        "grunt-contrib-requirejs": "latest",
+        "grunt-contrib-uglify": "latest"
+    }
+}

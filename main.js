@@ -3,22 +3,24 @@
 require.config({
     waitSeconds : 30,
     paths : {
-        'jquery'     : '//yandex.st/jquery/1.10.2/jquery.min',
-        'd3'         : 'http://d3js.org/d3.v3.min',
-        'app'        : 'app',
-        'cache'      : 'cache',
-        'tree'       : 'tree'
+        text       : '//cdnjs.cloudflare.com/ajax/libs/require-text/2.0.10/text.min',
+        jquery     : '//yandex.st/jquery/1.10.2/jquery.min',
+        d3         : 'http://d3js.org/d3.v3.min',
+        app        : 'app',
+        cache      : 'cache',
+        tree       : 'tree'
     },
-    shim: {
-        d3: {
-            exports  : 'd3'
+    shim : {
+        d3 : {
+            exports : 'd3'
         }
     }
 });
 
 require([
+    'jquery',
     'app'
-], function(App) {
+], function($, App) {
 
     // Пользователи, которые портят граф или вообще всё
     var blackList = [
@@ -30,8 +32,15 @@ require([
     var app = new App({
         usersUrl :  '/users/',
         blackList : blackList,
-        userCount : +document.body.getAttribute('count')
+        userCount : +document.body.getAttribute('count'),
+        gui : {
+            statusText  : '#status',
+            queueLength : '#queue-length',
+            cacheLength : '#cache-length',
+            clearButton : '#clear-cache'
+        }
     });
+
     app.start();
 
 });

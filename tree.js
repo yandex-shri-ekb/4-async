@@ -59,10 +59,11 @@ define([
             avatar : node.avatar
         };
 
+        var parent;
         if (node.parent === null) {
             parent = this.nodes[0];
         } else {
-            for (var parent, i = 0, l = this.nodes.length; i < l; i++) {
+            for (var i = 0, l = this.nodes.length; i < l; i++) {
                 if (this.nodes[i].name === node.parent) {
                     parent = this.nodes[i];
                     break;
@@ -94,7 +95,7 @@ define([
         var node = this.svg.selectAll('.node')
             .data(this.tree.nodes(this.root), function(d) { return d.name; });
         var link = this.svg.selectAll('.link')
-            .data(this.tree.links(this.nodes), function(d) { return d.source.name + '-' + d.target.name; });
+            .data(this.tree.links(this.nodes), function(d) { return d.target.name; });
 
         var nodeEnter = node.enter()
             .append('g')

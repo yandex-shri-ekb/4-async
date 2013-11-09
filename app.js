@@ -1,10 +1,13 @@
 'use strict';
 
+
 define([
     'jquery',
     'tree',
-    'cache'
-], function($, Tree, Cache) {
+    'cache',
+    'text!main.css',
+    'text!main.html'
+], function($, Tree, Cache, css, html) {
 
     /**
      * Приложение.
@@ -12,20 +15,26 @@ define([
      * @param {Object} config настройки
      */
     var App = function(config) {
-        config = config || {};
-        config.userCount = config.userCount || 2;
-        config.blackList = config.blackList || [];
+        this.config = config || {};
+        this.config.userCount = config.userCount || 2;
+        this.config.blackList = config.blackList || [];
 
         // Извлекаем имена пользователей, с которых мы начнём строить дерево
-        this.startUsernames = this.getStartUsernames(config.userCount);
-        $(document.body).html('')
-            .css({ margin : 0 })
-            .show();
+        this.startUsernames = this.getStartUsernames(this.config.userCount);
+        $('head').append('<style>' + css + '</style>');
+        $(document.body).html(html).show();
 
-        this.usersUrl = config.usersUrl;
+        this.config.gui = {
+            statusText  : $(config.gui.statusText),
+            queueLength : $(config.gui.queueLength),
+            cacheLength : $(config.gui.cacheLength),
+            clearButton : $(config.gui.clearButton)
+        };
+
+        this.usersUrl = this.config.usersUrl;
 
         // Игнорируемые
-        this.blackList = config.blackList;
+        this.blackList = this.config.blackList;
 
         // Визуализация дерева
         this.tree = new Tree;
@@ -44,6 +53,13 @@ define([
 
         // Префикс для кеширования данных о пользователях
         this.USER_PREFIX = 'habraUserv2.';
+
+        var self = this;
+        this.config.gui.clearButton.on('click', function() {
+            self.cache.clear();
+            self.updateGui();
+            return false;
+        });
     };
 
     /**
@@ -54,7 +70,7 @@ define([
 
         // Ищем корни и добавляем их в дерево
         for (var i = 0, len = this.startUsernames.length; i < len; i++) {
-            if (self.checkUser(this.startUsernames[i]))
+            if (self.blackListCheck(this.startUsernames[i]))
                 continue;
 
             this.getUserInfo(this.startUsernames[i]).then(function(user) {
@@ -67,14 +83,17 @@ define([
 
         // Через определённые промежутки времени
         // будем доставать из очереди пользователя
-        setInterval(function() {
+        var step = setInterval(function() {
             if (self.queue.length > 0) {
-                var u = self.queue.shift();
-                if (self.checkUser(u)) {
-                    return;
-                }
+                var username = self.queue.shift();
+
+                // Некоторые пользователи (BarsMonster) приглашали других дважды (grokru)
+                if (self.queue.indexOf(username) > -1) return;
+
+                if (self.blackListCheck(username)) return;
+
                 // Получать о нём информацию и добавлять в дерево
-                self.getUserInfo(u).then(function(user) {
+                self.getUserInfo(username).then(function(user) {
                     $.proxy(self.addUser(user), self);
                 });
             }
@@ -86,7 +105,7 @@ define([
      * @param {string} name имя пользователя
      * @return {boolean}
      */
-    App.prototype.checkUser = function(name) {
+    App.prototype.blackListCheck = function(name) {
         return this.blackList.indexOf(name) > -1;
     };
 
@@ -170,6 +189,8 @@ define([
                     // Кешируем в localStorage
                     self.cache.set(self.USER_PREFIX + user.name, user);
 
+                    self.updateGui();
+
                     d.resolve(user);
                 });
             }, this.delay++ * this.timeout);
@@ -177,7 +198,27 @@ define([
             d.resolve(user);
         }
 
+        this.updateGui();
+
         return d;
+    };
+
+    /**
+     * Обновляет информацию на экране о текущем состоянии дел.
+     */
+    App.prototype.updateGui = function() {
+        var queue = this.delay + this.queue.length;
+
+        this.config.gui.cacheLength.text(this.cache.count());
+        if (queue > 0) {
+            var status = 'Идёт сканирование';
+            $(document.body).removeClass('ready');
+        } else {
+            var status = 'Дерево построено';
+            $(document.body).addClass('ready');
+        }
+        this.config.gui.statusText.text(status);
+        this.config.gui.queueLength.text(queue);
     };
 
     return App;

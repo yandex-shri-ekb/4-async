@@ -20,9 +20,10 @@ module.exports = function(grunt) {
                     name : 'main',
                     out : 'build/all.min.js',
                     paths : {
-                        'jquery' : 'empty:',
-                        'd3' : 'empty:'
-                    }
+                        jquery : 'empty:',
+                        d3 : 'empty:'
+                    },
+                    exclude : ['text']
                 }
             }
         }

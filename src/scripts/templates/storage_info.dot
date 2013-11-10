@@ -1,0 +1,5 @@
+{{? it.count }}
+Групп в хранилище <span class="menu_control_storage-info">{{= it.count }}</span>
+{{??}}
+Нет групп в хранилище
+{{?}}

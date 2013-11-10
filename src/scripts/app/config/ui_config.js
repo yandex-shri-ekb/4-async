@@ -19,7 +19,8 @@ define(function(require) {
             qtyInputId: 'control_qty',
             startButtonId: 'control_start',
             resetButtonId: 'control_reset',
-            clearStorageButtonId: 'control_clear-storage'
+            clearStorageButtonId: 'control_clear-storage',
+            storageInfoId: 'control_storage-info'
         }
     };
 });

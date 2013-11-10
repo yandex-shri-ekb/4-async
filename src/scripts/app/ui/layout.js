@@ -20,6 +20,7 @@ define(function(require) {
                 start: Config.controls.startButtonId,
                 reset: Config.controls.resetButtonId,
                 clearStorage: Config.controls.clearStorageButtonId,
+                storageInfo: Config.controls.storageInfoId,
                 states: Config.statesContainerClass
             }));
         }

@@ -1,17 +1,24 @@
 <div class="layout">
     <div class="layout_container {{= it.svg }}"></div>
     <div class="layout_container layout_container-menu">
-        <div class="menu_group">
-            <div class="menu_control">
-                <label for="{{= it.qty }}">Кол-во пользователей</label>
-                <input id="{{= it.qty }}" class="menu_control_input menu_control_input-number" type="number" min="1" max="9" value="2">
+        <div class="menu">
+            <div class="menu_group">
+                <div class="menu_control">
+                    <label for="{{= it.qty }}">Кол-во пользователей</label>
+                    <input id="{{= it.qty }}" class="menu_control_input menu_control_input-number" type="number" min="1" max="9" value="2">
+                </div>
+            </div>
+            <div class="menu_group">
+                <button id="{{= it.start }}" type="button" class="button menu_button">Построить</button>
+                <button id="{{= it.reset }}" type="button" class="button menu_button">Сбросить</button>
+            </div>
+            <div id="states" class="menu_group {{= it.states }}"></div>            
+        </div>
+        <div class="menu">
+            <div id="{{= it.storageInfo }}" class="menu_group"></div>
+            <div class="menu_group">
+                <button id="{{= it.clearStorage }}" type="button" class="button menu_button">Очистить хранилище</button>
             </div>
         </div>
-        <div class="menu_group">
-            <button id="{{= it.start }}" type="button" class="button menu_button">Построить</button>
-            <button id="{{= it.reset }}" type="button" class="button menu_button">Сбросить</button>
-            <button id="{{= it.clearStorage }}" type="button" class="button menu_button">Очистить хранилище</button>
-        </div>
-        <div id="states" class="menu_group {{= it.states }}"></div>
     </div>
 </div>

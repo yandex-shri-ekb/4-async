@@ -63,14 +63,22 @@ define(function(require) {
         },
 
         /**
-         * Метод полностью очищает localStorage.
+         * Метод очищает localStorage.
          * @return {Object} Adapter
          */
         clear: function() {
-            this.isEnabled && localStorage.clear();
+            if(this.isEnabled) {
+                var keys = Object.keys(localStorage);
+
+                for (var i = 0, len = keys.length; i < len; i++) {
+                    if (keys[i].lastIndexOf(this.prefix, 0) === 0) {
+                        localStorage.removeItem(keys[i]);
+                    }
+                }
+            }
+
             return this;
         }
-
     };
 
     return Adapter;

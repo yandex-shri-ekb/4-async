@@ -57,13 +57,5 @@ body
     position: absolute;
     top: 0;
     right: 0;
-    -moz-box-sizing: border-box;
-    -webkit-box-sizing: border-box;
-    box-sizing: border-box;
-    padding: 15px;
-    width: 250px;
-    background: #f0f0e7;
-    color: #999;
-    text-align: left;
-    font-size: 13px;
+    padding: 10px;
 }

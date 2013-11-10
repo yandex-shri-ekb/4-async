@@ -29,7 +29,7 @@ define(function(require) {
                 .attr('preserveAspectRatio', 'xMinYMin');
 
             this.force = d3.layout.force()
-                .gravity(0.05)
+                .gravity(0.1)
                 .distance(100)
                 .charge(-100)
                 .size([this.width, this.height])

@@ -56,6 +56,11 @@
     animation: loading 1s infinite linear;
 }
 
+.state_indicator-prepare
+{
+    border-color: #777;
+}
+
 .state_indicator-complete
 {
     border-color: #02c261;

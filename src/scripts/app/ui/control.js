@@ -2,11 +2,11 @@ define(function(require) {
     'use strict';
 
     var $ = require('jquery'),
-        Config = require('app/config/ui_config');
+        Config = require('app/config/ui_config'),
+        States = require('./states');
 
     var Template = {
-        buildProgress: require('doT!templates/build_progress'),
-        buildComplete: require('doT!templates/build_complete')
+        storageInfo: require('doT!templates/storage_info')
     };
 
     var $el = {};
@@ -14,32 +14,34 @@ define(function(require) {
     return {
         cacheElements: function() {
             $el = {
-                body: $(document.body),
                 qtyInput: $.byId(Config.controls.qtyInputId),
                 startButton: $.byId(Config.controls.startButtonId),
                 resetButton: $.byId(Config.controls.resetButtonId),
                 clearStorageButton: $.byId(Config.controls.clearStorageButtonId),
-                statesContainer: $.byClass(Config.statesContainerClass)
+                storageInfo: $.byId(Config.controls.storageInfoId),
             };
 
             return $el;
         },
 
+        prepareBuild: function(number) {
+            States.createState(number, 'buildPrepare');
+        },
+
         startBuild: function(number) {
-            $el.statesContainer.append(Template.buildProgress({
-                idPrefix: Config.stateIdPrefix,
-                group: number
-            }));
+            States.changeState(number, 'buildProgress');
         },
 
         completeBuild: function(number) {
-            $.byId(Config.stateIdPrefix + number).replaceWith(Template.buildComplete({
-                group: number
-            }));
+            States.changeState(number, 'buildComplete');
         },
 
-        clearStates: function() {
-            $el.statesContainer.empty();
+        clearStates: States.clear,
+
+        setGroups: function(count) {
+            $el.storageInfo.html(Template.storageInfo({
+                count: count
+            }));
         }
     };
 });

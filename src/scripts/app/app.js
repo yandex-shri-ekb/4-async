@@ -40,23 +40,15 @@ define(function(require) {
             visualizer.addLink(data.parent.username, node);
         });
 
-        /**
-         * Обработка события вызванного визуализацией узла.
-         * 
-         * @param  {Object} data Узел
-         */
-        visualizer.on('add:node', function(data) {
-            Store.addNode(data);
-        });
+        visualizer.on('add:node', $.proxy(Store, 'addNode'));
+        visualizer.on('add:link', $.proxy(Store, 'addLink'));
 
-        /**
-         * Обработка события вызванного визуализацией ссылки.
-         * 
-         * @param  {Object} data Ссылка
-         */
-        visualizer.on('add:link', function(data) {
-            Store.addLink(data);
-        });
+        Store.on('done:build', $.proxy(Control, 'completeBuild'));
+        Store.on('update:groups', $.proxy(Control, 'setGroups'));
+
+        Store.updateInfo();
+
+        var crawlerCallCount = 0;
 
         /**
          * Функция инициализирует визуализицию группы пользователей.
@@ -66,7 +58,7 @@ define(function(require) {
          */
         var startBuild = function(username) {
             var graph = Store.getGroup(username);
-
+            
             /**
              * Если пользователь принадлежит к какой-либо группе в хранилище, она визуализируется.
              * Иначе запускается процесс построения группы.
@@ -74,7 +66,9 @@ define(function(require) {
             if(graph) {
                 visualizer.addGraph(graph);
             } else {
+                Control.prepareBuild(crawlerCallCount);
                 crawler.start(username);
+                crawlerCallCount++;
             }
         };
 
@@ -96,13 +90,14 @@ define(function(require) {
 
         ControlElements.startButton.on('click', function() {
             generalReset();
+            crawlerCallCount = 0;
+            
             var qty = ControlElements.qtyInput.val();
+
             for (var i = 0; i < qty; i++) {
-                startBuild(userList[i]);
+                startBuild(userList[i], i);
             }
         });
-
-        Store.onBuildDone = Control.completeBuild;
     };
 
     return {

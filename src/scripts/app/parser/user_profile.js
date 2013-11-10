@@ -22,6 +22,11 @@ define(function(require) {
             var $html = $(doc),
                 $user = $html.find('h2.username a');
 
+            if(!$user.length) {
+                this.error = 'error';
+                return;
+            }
+            
             this.url = $user.attr('href'),
             this.username = $user.text(),
             this.avatar = $html.find('img[alt="avatar"]').attr('src').replace(/^\/\//, 'http://'),

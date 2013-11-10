@@ -3,6 +3,6 @@ define(function(require) {
 
     return {
         usersUrl: 'http://habrahabr.ru/users/',
-        requestDelay: 200
+        requestDelay: 250
     };
 });

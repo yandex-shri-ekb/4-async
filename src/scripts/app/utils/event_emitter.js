@@ -33,6 +33,7 @@ define(function(require) {
          */
         emit: function(event, data) {
             var listeners = this.listeners[event];
+            
             if(listeners instanceof Array) {
                 for (var i = 0, len = listeners.length; i < len; i++) {
                     listeners[i].call(this, data);

@@ -44,7 +44,7 @@ define(function(require) {
          * @param  {String} url Ссылка на профиль пользователя
          * @return {Object}
          */
-        getUserProfile: function (url) {
+        getUserProfile: function(url) {
             var self = this;
             if(typeof self.userProfileCache[url] !== 'undefined') {
                 return {
@@ -89,7 +89,7 @@ define(function(require) {
                  * Если данный пользователь уже находится в группе, прерывается выполнение фунции.
                  * Данное поведение позволяет разрешить коллизии созданные Хабрахабром.
                  */
-                if(group.contains(userProfile.username)) {
+                if(userProfile.error || group.contains(userProfile.username)) {
                     group.diminish();
                     return;
                 }

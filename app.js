@@ -10,9 +10,7 @@ define('app', ['jquery', 'graph', 'user', 'storage'], function($, Graph, User, s
     var App = function(options) {
         var defaults = {
             // частота опроса
-            sampleRate: 650,
-            // тестовый режим
-            testMode: false
+            sampleRate: 650
         };
 
         this.options = $.extend(defaults, options);
@@ -56,9 +54,9 @@ define('app', ['jquery', 'graph', 'user', 'storage'], function($, Graph, User, s
             // и подготовим холст
             .append($canvas);
 
+        // Добавим НЛО
         var root = new User('НЛО', '/');
         root.avatar = '/favicon.ico';
-
         app.queue = [];
         app.graph = new Graph($canvas.get(0), {});
         app.addToGraph(root, 40);
@@ -69,14 +67,6 @@ define('app', ['jquery', 'graph', 'user', 'storage'], function($, Graph, User, s
         }
 
         app.graph.update();
-
-        if(app.options.testMode) {
-            app.linkUsers(root, initUsers[0]);
-            app.linkUsers(initUsers[0], initUsers[1]);
-            app.graph.update();
-
-            return;
-        }
 
         // start loop
         app.tick();
@@ -146,34 +136,47 @@ define('app', ['jquery', 'graph', 'user', 'storage'], function($, Graph, User, s
         else {
             // получаем информацию о пользователе
             $.get(user.url, function(response) {
-                var $page = $(response),
-                    $invitedBy = $('#invited-by', $page),
-                    invitedByName = '',
-                    invitedByUrl = '';
+                var $page = $(response);
 
-                if($invitedBy.length === 0) {
-                    // наверное НЛО
-                    invitedByName = 'НЛО';
+                // Страница пользователя заблокирована
+                if($('h1', $page).text() == 'Доступ закрыт') {
+                    user.markAsDeleted();
                 }
                 else {
-                    invitedByName = $invitedBy.text().trim() || null;
-                    invitedByUrl = $invitedBy.attr('href') || null;
+                    // если мы забирали пользователя не со страницы другого пользователя
+                    if(user.invitedBy === null) {
+                        var $invitedBy = $('#invited-by', $page),
+                            invitedByName = '',
+                            invitedByUrl = '';
+
+                        if($invitedBy.length === 0) {
+                            // наверное НЛО
+                            invitedByName = 'НЛО';
+                        }
+                        else {
+                            invitedByName = $invitedBy.text().trim() || null;
+                            invitedByUrl = $invitedBy.attr('href') || null;
+                        }
+
+                        user.invitedBy = new User(invitedByName, invitedByUrl);
+                    }
+
+                    // аватарка
+                    user.avatar = $('.user_header .avatar img', $page).attr('src');
+
+                    // друзьяши, куда без них
+                    var $friends = $('#invited_data_items li a[rel="friend"]', $page);
+                    user.friends = $friends.map(function() {
+                        var $friend = $(this),
+                            friendName = $friend.text().trim(),
+                            friendUrl = $friend.attr('href'),
+                            friend = new User(friendName, friendUrl);
+
+                        friend.invitedBy = new User(user.nickname, user.url);
+
+                        return friend;
+                    }).get();
                 }
-
-                var invitedByUser = new User(invitedByName, invitedByUrl);
-
-                user.avatar = $('.user_header .avatar img', $page).attr('src');
-                user.invitedBy = invitedByUser;
-
-                // друзьяши, куда без них
-                var $friends = $('#invited_data_items li a[rel="friend"]', $page);
-                user.friends = $friends.map(function() {
-                    var $friend = $(this),
-                        friendName = $friend.text().trim(),
-                        friendUrl = $friend.attr('href');
-
-                    return new User(friendName, friendUrl);
-                }).get();
 
                 storage.save(user.nickname, user, 'user.');
                 console.log('saved to cache');
@@ -186,7 +189,7 @@ define('app', ['jquery', 'graph', 'user', 'storage'], function($, Graph, User, s
 
     /**
      * @param {User} user
-     * @param {?string} priority
+     * @param {string} [priority]
      */
     App.prototype.addToQueue = function(user, priority) {
         priority = priority || 'low';
@@ -200,12 +203,10 @@ define('app', ['jquery', 'graph', 'user', 'storage'], function($, Graph, User, s
 
     /**
      * @param {User} user
-     * @param {?int} size
-     * @param {?Object} options
+     * @param {int} [size]
+     * @param {Object} [options]
      */
     App.prototype.addToGraph = function(user, size, options) {
-        size = size || user.friends.length;
-        options = options || {};
         return this.graph.add(user.nickname, user.avatar, size, options);
     };
 

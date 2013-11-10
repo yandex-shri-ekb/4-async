@@ -5,6 +5,8 @@ define('storage', [], function() {
         save: function(name, obj, prefix) {
             prefix = prefix || '';
             window.localStorage.setItem(prefix + name, JSON.stringify(obj));
+
+            return this;
         },
         load: function(name, prefix) {
             prefix = prefix || '';
@@ -15,6 +17,17 @@ define('storage', [], function() {
             else {
                 return null;
             }
+        },
+        clear: function() {
+            window.localStorage.clear();
+
+            return this;
+        },
+        remove: function(name, prefix) {
+            prefix = prefix || '';
+            window.localStorage.removeItem(prefix + name);
+
+            return this;
         }
     };
 });

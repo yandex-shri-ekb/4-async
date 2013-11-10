@@ -19,11 +19,10 @@ require(['app', 'user', 'jquery'], function(App, User, $) {
 
     var INIT_USER_AMOUNT = 3;
 
-    var $body = $(document.body),
-        testMode = $body.data('test-mode') || false;
+    var $body = $(document.body);
 
     // Определим на той ли странице мы находимся
-    if(!testMode && document.URL.indexOf('habrahabr.ru/users') === -1) {
+    if(document.URL.indexOf('habrahabr.ru/users') === -1) {
         alert('Необходимо находиться на странице http://habrahabr.ru/users/ для построения графа');
         return;
     }
@@ -43,9 +42,7 @@ require(['app', 'user', 'jquery'], function(App, User, $) {
     // очистим текущую страницу
     $body.html('').show();
 
-    // и запустим наше приложение
-    var app = new App({
-        testMode: testMode
-    });
+    // запустим наше приложение
+    var app = new App();
     app.init(users);
 });

@@ -11,7 +11,6 @@ define('graph', ['d3', 'jquery'], function(d3, $) {
     var Graph = function(canvas, options) {
         var defaults = {
             distance: 100,
-            linkDistance: 100,
             charge: -100
         };
 
@@ -30,6 +29,7 @@ define('graph', ['d3', 'jquery'], function(d3, $) {
         // https://github.com/mbostock/d3/wiki/Force-Layout#wiki-links
         this.links = [];
 
+        // svg items
         this.link = null;
         this.node = null;
 
@@ -38,7 +38,7 @@ define('graph', ['d3', 'jquery'], function(d3, $) {
             .nodes(this.nodes)
             .links(this.links)
             .distance(this.options.distance)
-            .linkDistance(this.options.linkDistance)
+            .linkDistance(calculateLinkLenght)
             .charge(this.options.charge)
             .size([w, h])
             .start();
@@ -66,13 +66,13 @@ define('graph', ['d3', 'jquery'], function(d3, $) {
     /**
      * @param {string} name
      * @param {string} image
-     * @param {?int} size
-     * @param {?Object} options
+     * @param {int} [size=0]
+     * @param {Object} [options={}]
      */
     Graph.prototype.add = function(name, image, size, options) {
         size = size || 0;
         options = $.extend({}, options);
-        var node = {name: name, image: image, size: size, o: options};
+        var node = {name: name, image: image, size: size, o: options, __forceSize: size > 0};
         this.nodes.push(node);
 
         return node;
@@ -94,6 +94,12 @@ define('graph', ['d3', 'jquery'], function(d3, $) {
         this.links.push({
             source: source,
             target: target
+        });
+
+        [source, target].forEach(function(node) {
+            if(!node.__forceSize) {
+                node.size++;
+            }
         });
 
         return this;
@@ -135,7 +141,7 @@ define('graph', ['d3', 'jquery'], function(d3, $) {
         graph.force.start();
 
         graph.link = this.svg.selectAll('.link')
-           .data(graph.links);
+           .data(graph.links, function(d) { return d.source.name + '-' + d.target.name; });
 
         // Enter any new links.
         graph.link.enter().insert("svg:line", ".node")
@@ -148,8 +154,17 @@ define('graph', ['d3', 'jquery'], function(d3, $) {
         // Exit any old links.
         graph.link.exit().remove();
 
-        // Update the nodes…
-        graph.node = graph.svg.selectAll(".node").data(graph.nodes);
+        // select all existed nodes
+        graph.node = graph.svg.selectAll(".node")
+            .data(graph.nodes, function(d) { return d.name; });
+
+        // Update the images…
+        graph.node.selectAll("image")
+            .transition()
+            .attr("x", function(d) { return -calculateNodeSize(d) / 2 })
+            .attr("y", function(d) { return -calculateNodeSize(d) / 2 })
+            .attr("width", calculateNodeSize)
+            .attr("height", calculateNodeSize);
 
         var elems = graph.node.enter()
             .append("g")
@@ -158,10 +173,10 @@ define('graph', ['d3', 'jquery'], function(d3, $) {
 
         elems.append("image")
             .attr("xlink:href", function(d) { return d.image })
-            .attr("x", function(d) { return -calculateSize(d.size) / 2 })
-            .attr("y", function(d) { return -calculateSize(d.size) / 2 })
-            .attr("width", function(d) { return calculateSize(d.size) })
-            .attr("height", function(d) { return calculateSize(d.size) });
+            .attr("x", function(d) { return -calculateNodeSize(d) / 2 })
+            .attr("y", function(d) { return -calculateNodeSize(d) / 2 })
+            .attr("width", calculateNodeSize)
+            .attr("height", calculateNodeSize);
 
         elems.append("text")
             .attr("dx", 12)
@@ -174,18 +189,35 @@ define('graph', ['d3', 'jquery'], function(d3, $) {
         graph.node.exit().remove();
     };
 
-    function calculateSize(size) {
-        if(size > 15) {
+    function calculateNodeSize(d) {
+        if(d.size > 15) {
             return 32;
         }
-        else if(size > 10) {
+        else if(d.size > 10) {
             return 24;
         }
-        else if(size > 5) {
+        else if(d.size > 5) {
             return 20;
         }
         else {
             return 16;
+        }
+    }
+
+    function calculateLinkLenght(d) {
+        var size = Math.min(d.source.size, d.target.size);
+
+        if(size > 15) {
+            return 220;
+        }
+        else if(size > 10) {
+            return 160;
+        }
+        else if(size > 5) {
+            return 120;
+        }
+        else {
+            return 100;
         }
     }
 

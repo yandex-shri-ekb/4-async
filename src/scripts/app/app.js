@@ -95,7 +95,7 @@ define(function(require) {
             var qty = ControlElements.qtyInput.val();
 
             for (var i = 0; i < qty; i++) {
-                startBuild(userList[i], i);
+                startBuild(userList[i], crawlerCallCount);
             }
         });
     };

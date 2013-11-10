@@ -1,0 +1,9 @@
+{
+	"name": "habragraph",
+	"version": "0.0.1",
+	"devDependencies": {
+		"grunt": "latest",
+		"grunt-contrib-requirejs": "latest",
+		"grunt-contrib-cssmin": "latest"
+	}
+}

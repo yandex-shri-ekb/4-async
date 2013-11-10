@@ -1,0 +1,74 @@
+@-webkit-keyframes loading
+{
+    to
+    {
+        -webkit-transform: rotate(360deg);
+    }
+}
+
+@-moz-keyframes loading
+{
+    to
+    {
+        -moz-transform: rotate(360deg);
+    }
+}
+
+@-ms-keyframes loading
+{
+    to
+    {
+        -ms-transform: rotate(360deg);
+    }
+}
+
+@keyframes loading
+{
+    to
+    {
+        transform: rotate(360deg);
+    }
+}
+
+.state
+{
+    margin: 10px 0 5px;
+}
+
+.state_indicator
+{
+    display: block;
+    float: left;
+    width: 20px;
+    height: 20px;
+    border: 2px solid;
+    border-radius: 50%;
+    background: transparent;
+}
+
+.state_indicator-loading
+{
+    border-color: #000 #777 #777 #000;
+    -moz-animation: loading 1s infinite linear;
+    -ms-animation: loading 1s infinite linear;
+    -webkit-animation: loading 1s infinite linear;
+    -o-animation: loading 1s infinite linear;
+    animation: loading 1s infinite linear;
+}
+
+.state_indicator-prepare
+{
+    border-color: #777;
+}
+
+.state_indicator-complete
+{
+    border-color: #02c261;
+}
+
+.state_message
+{
+    display: inline-block;
+    margin: 0 0 0 12px;
+    line-height: 24px;
+}

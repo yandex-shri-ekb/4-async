@@ -1,0 +1,6 @@
+<div id="{{= it.idPrefix }}{{= it.group }}" class="state">
+    <span class="state_indicator state_indicator-prepare"></span>
+    <span class="state_message">
+        Получение корня группы {{= it.group }}
+    <span>
+</div>

@@ -1,0 +1,22 @@
+svg
+{
+    min-height: 400px;
+    max-height: 800px;
+    background: #fff;
+}
+
+.link
+{
+    stroke: #aaa;
+    stroke-dasharray: 0, 2, 1;
+}
+
+.node_text
+{
+    fill: #333;
+}
+
+.node:not(:hover) .node_text
+{
+    display: none;
+}

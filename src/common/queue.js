@@ -5,10 +5,12 @@
         this.data = [];
     };
 
+    Queue.prototype.contains = function (value) {
+        return this.data.indexOf(value) !== -1;
+    };
+
     Queue.prototype.put = function (value) {
-        if (this.data.indexOf(value) === -1) {
-            this.data.push(value);
-        }
+        this.data.push(value);
     };
 
     Queue.prototype.take = function (value) {

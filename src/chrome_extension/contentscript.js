@@ -3,16 +3,14 @@
 
     var $ = require('../../vendor/jquery/jquery'),
         Queue = require('../common/queue'),
-        Parser = require('../common/parser'),
         Cache = require('../common/cache'),
+        parser = require('../common/parser'),
 
-        queue = new Queue(),
-        parsed_users,
+        processing_users = new Queue(),
+        processed_users = new Queue(),
         cache = new Cache('users'),
+
         retry_timeout = 5000,
-        increaseTimeout = function (t) {
-            return t * 2;
-        },
         max_retry_attempts = 5,
 
         sendUser,
@@ -37,10 +35,10 @@
             });
         }
 
-        queue.take(url);
-        parsed_users.push(url);
+        processing_users.take(url);
+        processed_users.put(url);
 
-        if (queue.isEmpty()) {
+        if (processing_users.isEmpty()) {
             chrome.runtime.sendMessage({
                 action: "lastUserSent"
             });
@@ -51,43 +49,47 @@
         timeout = timeout !== undefined ? timeout : retry_timeout;
         attempt = attempt !== undefined ? attempt : 1;
 
-        if (parsed_users.indexOf(url) !== -1) {
+        if (processed_users.contains(url) || processing_users.contains(url)) {
             return;
         }
 
-        queue.put(url);
+        processing_users.put(url);
 
         if (cache.get(url)) {
             setTimeout(function () {
                 sendUser(url);
             }, 0);
+
             return;
         }
 
         $.get(url)
             .done(function (html) {
-                var user = new Parser($(html)).getUser();
+                var user = parser.getUser(html);
 
                 cache.set(url, user);
                 sendUser(url);
             })
             .fail(function () {
                 if (attempt >= max_retry_attempts) {
-                    queue.take(url);
+                    processing_users.take(url);
+
                     return;
                 }
 
                 setTimeout(function () {
-                    handleUser(url, increaseTimeout(timeout), attempt + 1);
+                    handleUser(url, timeout * 2, attempt + 1);
                 }, timeout);
             });
     };
 
     buildUserTree = function (user_number) {
-        queue.empty();
-        parsed_users = [];
+        var top_users = parser.getUsersUrls(document, user_number);
 
-        new Parser($(document)).getUsersUrls(user_number).forEach(function (url) {
+        processing_users.empty();
+        processed_users.empty();
+
+        top_users.forEach(function (url) {
             handleUser(url);
         });
     };

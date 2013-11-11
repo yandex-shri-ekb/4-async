@@ -1,7 +1,7 @@
 {
   "name" : "Habr usertree",
   "version" : "1.0",
-  "description" : "Shows a habr usertree on habr user page'",
+  "description" : "Shows a habr usertree on habr user page",
   "background" : {
     "scripts": ["background.js"]
   },

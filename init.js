@@ -31,7 +31,7 @@ require(['app', 'user', 'jquery'], function(App, User, $) {
         users = [];
 
     // находим пользователей, с которых начнем строить наше дерево
-    $peoples.find('.user:lt(' + INIT_USER_AMOUNT + ')').each(function() {
+    $peoples.find('.user').each(function() {
         var $user = $(this),
             $link = $user.find('.username a'),
             $avatar = $user.find('.avatar img'),
@@ -42,7 +42,68 @@ require(['app', 'user', 'jquery'], function(App, User, $) {
     // очистим текущую страницу
     $body.html('').show();
 
-    // запустим наше приложение
     var app = new App();
-    app.init(users);
+
+    initControls();
+
+    var $canvas = $('<div id="canvas"></div>').appendTo($body);
+
+    // запустим наше приложение
+    app.init($canvas, users.slice(0, INIT_USER_AMOUNT));
+
+    /**
+     */
+    function initControls() {
+        var $controls = $('<div id="controls"></div>').appendTo($body);
+
+        $('<button id="btn-start">start</button>')
+            .appendTo($controls)
+            .on('click', function() {
+                app.start();
+                return false;
+            });
+
+        $('<button id="btn-stop">stop</button>')
+            .appendTo($controls)
+            .on('click', function() {
+                app.stop();
+                return false;
+            });
+
+        $('<button id="btn-continue">resume</button>')
+            .appendTo($controls)
+            .on('click', function() {
+                app.resume();
+                return false;
+            });
+
+        var $qty = $('<select id="btn-init-qty"></select>')
+            .appendTo($controls)
+            .on('change', function() {
+                var $select = $(this),
+                    val = +$select.val(),
+                    prev = +$select.data('current');
+
+                if(app.isStarted === false || val < prev) {
+                    //alert
+                    app.reset(users.slice(0, val));
+                }
+                else {
+                    users.slice(prev, val).forEach(function(user) {
+                        app.addToQueue(user, 'high')
+                    });
+                }
+
+                $select.data('current', val);
+            });
+
+        for(var i = 1; i <= 100; i++) {
+            $('<option></option>').text(i).val(i).appendTo($qty);
+        }
+
+        $qty
+            .find('[value=' + INIT_USER_AMOUNT + ']')
+            .attr('selected', 'selected')
+            .data('current', INIT_USER_AMOUNT);
+    }
 });

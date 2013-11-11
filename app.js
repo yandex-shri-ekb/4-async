@@ -18,58 +18,58 @@ define('app', ['jquery', 'graph', 'user', 'storage'], function($, Graph, User, s
         // очередь
         this.queue = [];
 
+        // граф пользователей
+        this.graph = null;
+
         // флаг остановки
         this.isStoped = false;
 
-        this.nTicks = 0;
+        // флаг остановки
+        this.isStarted = false;
     };
 
     /**
-     * @param {Array} initUsers
+     * @param {jQuery} $canvas
+     * @param {User[]} users
      */
-    App.prototype.init = function(initUsers) {
-        var app = this,
-            $body = $(document.body),
-            $canvas = $('<div id="canvas"></div>'),
-            $controls = $('<div id="controls"></div>');
+    App.prototype.init = function($canvas, users) {
+        var app = this;
 
-        $('<button id="btn-stop">stop</button>')
-            .appendTo($controls)
-            .on('click', function() {
-                app.isStoped = true;
-                return false;
-            });
+        app.graph = new Graph($canvas.get(0), {});
 
-        $('<button id="btn-continue">continue</button>')
-            .appendTo($controls)
-            .on('click', function() {
-                app.isStoped = false;
-                app.tick();
-                return false;
-            });
+        app.reset(users);
+    };
 
-        $body
-            // элементы управления
-            .append($controls)
-            // и подготовим холст
-            .append($canvas);
+    /**
+     * @param {User[]} users
+     */
+    App.prototype.reset = function(users) {
+        var app = this;
+
+        app.queue = [];
+
+        app.graph.clear();
+        app.graph.update();
 
         // Добавим НЛО
-        var root = new User('НЛО', '/');
-        root.avatar = '/favicon.ico';
-        app.queue = [];
-        app.graph = new Graph($canvas.get(0), {});
-        app.addToGraph(root, 40);
+        app.addUFO();
 
-        for(var i = 0, l = initUsers.length; i < l; i++) {
-            app.queue.push(initUsers[i]);
-            app.addToGraph(initUsers[i]);
+        for(var i = 0, l = users.length; i < l; i++) {
+            app.addToQueue(users[i], 'low');
+            app.addToGraph(users[i]);
         }
 
         app.graph.update();
+    };
 
-        // start loop
-        app.tick();
+    /**
+     */
+    App.prototype.addUFO = function() {
+        var app = this;
+
+        var root = new User('НЛО', '/');
+        root.avatar = '/favicon.ico';
+        app.addToGraph(root, 40);
     };
 
     /**
@@ -81,10 +81,9 @@ define('app', ['jquery', 'graph', 'user', 'storage'], function($, Graph, User, s
             return;
         }
 
-        app.nTicks++;
-
         var user = app.queue.shift();
         if(user === undefined) {
+            setTimeout(function() {app.tick();}, app.options.sampleRate);
             return;
         }
 
@@ -92,8 +91,6 @@ define('app', ['jquery', 'graph', 'user', 'storage'], function($, Graph, User, s
         app.requestUser(user).then(function(user) {
             var node = app.findNode(user) || app.addToGraph(user),
                 parentNode = app.findNode(user.invitedBy);
-
-            console.log(user);
 
             if(parentNode !== null) {
                 app.graph.linkNodes(node, parentNode).update();
@@ -114,9 +111,7 @@ define('app', ['jquery', 'graph', 'user', 'storage'], function($, Graph, User, s
             });
 
             var nextThrough = user.__storage ? 150 : app.options.sampleRate;
-            setTimeout(function() {
-                app.tick();
-            }, nextThrough)
+            setTimeout(function() {app.tick();}, nextThrough)
         });
     };
 
@@ -225,10 +220,36 @@ define('app', ['jquery', 'graph', 'user', 'storage'], function($, Graph, User, s
     };
 
     /**
+     */
+    App.prototype.refresh = function() {
+        return this.graph.update();
+    };
+
+    /**
      * @param {User} user
      */
     App.prototype.findNode = function(user) {
         return this.graph.find(user.nickname);
+    };
+
+    /**
+     */
+    App.prototype.start = function() {
+        this.isStarted = true;
+        this.tick();
+    };
+
+    /**
+     */
+    App.prototype.resume = function() {
+        this.isStoped = false;
+        this.tick();
+    };
+
+    /**
+     */
+    App.prototype.stop = function() {
+        this.isStoped = true;
     };
 
     return App;

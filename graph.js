@@ -10,7 +10,7 @@ define('graph', ['d3', 'jquery'], function(d3, $) {
      */
     var Graph = function(canvas, options) {
         var defaults = {
-            distance: 100,
+            distance: 200,
             charge: -100
         };
 
@@ -40,8 +40,7 @@ define('graph', ['d3', 'jquery'], function(d3, $) {
             .distance(this.options.distance)
             .linkDistance(calculateLinkLenght)
             .charge(this.options.charge)
-            .size([w, h])
-            .start();
+            .size([w, h]);
 
         this.force.on('tick', function() {
             graph.link
@@ -138,8 +137,6 @@ define('graph', ['d3', 'jquery'], function(d3, $) {
     Graph.prototype.update = function() {
         var graph = this;
 
-        graph.force.start();
-
         graph.link = this.svg.selectAll('.link')
            .data(graph.links, function(d) { return d.source.name + '-' + d.target.name; });
 
@@ -187,6 +184,21 @@ define('graph', ['d3', 'jquery'], function(d3, $) {
             .text(function(d) { return d.name; });
 
         graph.node.exit().remove();
+
+        graph.force.start();
+    };
+
+    /**
+     */
+    Graph.prototype.clear = function() {
+        this.nodes = [];
+        this.links = [];
+        this.link = null;
+        this.node = null;
+
+        this.force
+            .nodes(this.nodes)
+            .links(this.links);
     };
 
     function calculateNodeSize(d) {

@@ -1,12 +1,7 @@
 (function () {
     'use strict';
 
-    var d3 = require('../../vendor/d3/d3'),
-        $ = require('../../vendor/jquery/jquery'),
-
-        Tree = function (container, provider) {
-            this.provider = new AsciiTreeProvider(container);
-        },
+    var $ = require('../../vendor/jquery/jquery'),
 
         AsciiTreeProvider = function (container) {
             var $container = $(container),
@@ -25,8 +20,8 @@
                 }
 
                 return length;
-            }
-            
+            };
+
             drawLeaf = function (level, value, isLastChild) {
                 var prefix = level === 0 ? '' : (isLastChild ? '┗ ' : '┝ ');
 
@@ -57,10 +52,14 @@
                     $container.empty();
                     drawTree(0, source);
                 }
-            }
+            };
+        },
+
+        Tree = function (container) {
+            this.provider = new AsciiTreeProvider(container);
         };
 
-    Tree.prototype.update = function(source) {
+    Tree.prototype.update = function (source) {
         this.provider.update(source);
     };
 

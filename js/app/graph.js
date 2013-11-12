@@ -1,6 +1,6 @@
 'use strict';
 
-define('graph', ['d3', 'jquery'], function(d3, $) {
+define(['d3', 'jquery'], function(d3, $) {
     /** @class Graph */
 
     /**

@@ -1,6 +1,6 @@
 'use strict';
 
-define('app', ['jquery', 'graph', 'user', 'storage'], function($, Graph, User, storage) {
+define(['jquery', 'app/graph', 'app/user', 'app/storage'], function($, Graph, User, storage) {
     /** @class App */
 
     /**

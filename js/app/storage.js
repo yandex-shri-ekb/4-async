@@ -1,6 +1,6 @@
 'use strict';
 
-define('storage', [], function() {
+define([], function() {
     return {
         save: function(name, obj, prefix) {
             prefix = prefix || '';

@@ -1,6 +1,6 @@
 'use strict';
 
-define('user', [], function() {
+define([], function() {
     /** @class User */
 
     /**

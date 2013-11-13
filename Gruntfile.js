@@ -28,7 +28,7 @@ module.exports = function (grunt) {
         },
         bookmarklet: {
             generate: {
-                body: 'main.js',
+                body: 'bookmarklet/bookmarklet.js',
                 out: 'bookmarklet/bookmarklet.js'
             }
         },
@@ -52,17 +52,19 @@ module.exports = function (grunt) {
         browserify: {
             dist: {
                 files: {
-                    'chrome_extension/popup.js': 'src/chrome_extension/popup.js',
-                    'chrome_extension/contentscript.js': 'src/chrome_extension/contentscript.js'
+                    // 'chrome_extension/popup.js': 'src/chrome_extension/popup.js',
+                    // 'chrome_extension/contentscript.js': 'src/chrome_extension/contentscript.js',
+                    'bookmarklet/bookmarklet.js': 'src/bookmarklet/bookmarklet.js'
                 },
-                options: {
-                    shim: {
-                        d3: {
-                            path: 'vendor/d3/d3.js',
-                            exports: 'd3'
-                        }
-                    }
-                }
+                // this somehow adds d3 to each file
+                // options: {
+                //     shim: {
+                //         d3: {
+                //             path: 'vendor/d3/d3.js',
+                //             exports: 'd3'
+                //         }
+                //     }
+                // }
             }
         },
         uglify: {
@@ -81,7 +83,7 @@ module.exports = function (grunt) {
     grunt.registerTask('default', [
         'bower',
         'jsbeautifier',
-        'jslint',
+        // 'jslint',
         'browserify',
         'uglify',
         'bookmarklet',

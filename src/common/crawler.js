@@ -1,8 +1,7 @@
 (function () {
     'use strict';
 
-    var $ = require('../../vendor/jquery/jquery'),
-        Queue = require('./queue'),
+    var Queue = require('./queue'),
         Cache = require('./cache'),
         /* TODO: include into crawler */
         parser = require('./parser'),
@@ -91,14 +90,18 @@
             return;
         }
 
-        $.get(url)
-            .done(function (html) {
-                var user = parser.getUser(html);
+        var xhr = new XMLHttpRequest();
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState !== 4) return;
+
+            switch (xhr.status) {
+            case 200:
+                var user = parser.getUser(xhr.responseText);
 
                 self.cache.set(url, user);
                 self.sendUser(url);
-            })
-            .fail(function () {
+                break;
+            default:
                 if (attempt >= this.max_retry_attempts) {
                     self.processing_users.take(url);
 
@@ -108,7 +111,11 @@
                 setTimeout(function () {
                     self.handleUser(url, this.timeout * 2, attempt + 1);
                 }, this.timeout);
-            });
+                break;
+            }
+        }
+        xhr.open("GET", url, true);
+        xhr.send();
     };
 
     module.exports = Crawler;

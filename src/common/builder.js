@@ -1,18 +1,19 @@
 (function () {
     'use strict';
 
-    var $ = require('../../vendor/jquery/jquery'),
-        Spinner = require('./spinner'),
+    var Spinner = require('./spinner'),
         Tree = require('./tree'),
+        tree_el = document.querySelector('.tree'),
 
         Builder = function () {
-            if ($('.tree').size() > 0) {
-                $('.tree').show();
+            if (tree_el) {
+                tree_el.style.display = '';
             } else {
                 this.initTemplate();
+                tree_el = document.querySelector('.tree');
             }
 
-            this.spinner = new Spinner($('.spinner').get(0));
+            this.spinner = new Spinner('.spinner');
             this.users = [];
             this.tree = new Tree('.container');
         };
@@ -51,8 +52,8 @@
 
     Builder.prototype.stop = function () {
         console.log('Last user sent');
-        $('.progress').hide();
-        $('.done').show();
+        document.querySelector('.progress').style.display = 'none';
+        document.querySelector('.done').style.display = 'inherit';
         this.spinner.stop();
     };
 
@@ -90,10 +91,12 @@
             '<div class="container"></div>' +
             '</section>';
 
-        $('body').append(tpl);
-        $('.close').on('click', function () {
-            $('.tree').remove();
-        });
+
+        document.body.innerHTML += tpl;
+
+        document.querySelector('.close').addEventListener('click', function () {
+            tree_el.parentElement.removeChild(tree_el);
+        }, false);
     };
 
     module.exports = Builder;

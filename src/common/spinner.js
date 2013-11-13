@@ -4,7 +4,7 @@
     var Spinner = function (container) {
         this.stage = 0;
         this.timeout = 200;
-        this.container = container;
+        this.container_el = document.querySelector(container);
     };
 
     Spinner.prototype.stages = ['/', '-', '\\', '|'];
@@ -15,7 +15,7 @@
         this.stop();
 
         this.interval = setInterval(function () {
-            self.container.innerHTML = self.stages[self.stage];
+            self.container_el.textContent = self.stages[self.stage];
             self.stage = (self.stage + 1) % self.stages.length;
         }, this.timeout);
     };
@@ -23,7 +23,7 @@
     Spinner.prototype.stop = function () {
         clearInterval(this.interval);
 
-        this.container.innerHTML = '';
+        this.container_el.textContent = '';
         this.stage = 0;
     };
 

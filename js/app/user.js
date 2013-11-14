@@ -1,16 +1,15 @@
 'use strict';
 
 define([], function() {
-    /** @class User */
-
     /**
+     * @class User
      * @constructor
      * @property {string} nickname
      * @property {string} [url]
      * @property {string} [avatar=null]
      */
     var User = function(nickname, url, avatar) {
-        this.nickname = nickname;
+        this.nickname = nickname || null;
         this.url = url || '/users/' + nickname + '/';
         this.avatar = avatar || null;
 
@@ -38,20 +37,6 @@ define([], function() {
          * @type {boolean}
          */
         this.__storage = false;
-    };
-
-    /**
-     * @param {User} friend
-     */
-    User.prototype.addFriend = function(friend) {
-        this.friends.push(friend);
-    };
-
-    /**
-     */
-    User.prototype.markAsDeleted = function() {
-        this.isDeleted = true;
-        this.avatar = '/i/avatars/stub-user-middle.gif';
     };
 
     return User;

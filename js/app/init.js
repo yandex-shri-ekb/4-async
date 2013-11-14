@@ -1,6 +1,6 @@
-require(['app/app', 'app/user', 'jquery'], function(App, User, $) {
+require(['app/app', 'app/user', 'app/storage', 'jquery'], function(App, User, storage, $) {
 
-    var INIT_USER_AMOUNT = 3;
+    var INIT_USER_AMOUNT = storage.load('init_user_amount', 'settings.') || 3;
 
     var $body = $(document.body);
 
@@ -78,6 +78,8 @@ require(['app/app', 'app/user', 'jquery'], function(App, User, $) {
                 }
 
                 $select.data('current', val);
+
+                storage.save('init_user_amount', val, 'settings.')
             });
 
         for(var i = 1; i <= 100; i++) {

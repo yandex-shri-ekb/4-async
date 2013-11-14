@@ -1,6 +1,6 @@
 'use strict';
 
-define(['jquery', 'app/graph', 'app/user', 'app/storage'], function($, Graph, User, storage) {
+define(['jquery', 'app/graph', 'app/user', 'app/user_manager', 'app/storage'], function($, Graph, User, userManager, storage) {
     /** @class App */
 
     /**
@@ -89,14 +89,16 @@ define(['jquery', 'app/graph', 'app/user', 'app/storage'], function($, Graph, Us
 
         console.log('Request for ' + user.nickname);
         app.requestUser(user).then(function(user) {
-            var node = app.findNode(user) || app.addToGraph(user),
-                parentNode = app.findNode(user.invitedBy);
+            var node = app.findNode(user) || app.addToGraph(user);
 
-            if(parentNode !== null) {
-                app.graph.linkNodes(node, parentNode).update();
-            }
-            else {
-                app.addToQueue(user.invitedBy, 'high');
+            if(user.invitedBy !== null) {
+                var parentNode = app.findNode(user.invitedBy);
+                if(parentNode !== null) {
+                    app.graph.linkNodes(node, parentNode).update();
+                }
+                else {
+                    app.addToQueue(user.invitedBy, 'high');
+                }
             }
 
             user.friends.forEach(function(f) {
@@ -120,7 +122,7 @@ define(['jquery', 'app/graph', 'app/user', 'app/storage'], function($, Graph, Us
      */
     App.prototype.requestUser = function(user) {
         // кеш
-        var cachedValue = storage.load(user.nickname, 'user.');
+        var cachedValue = storage.load(user.nickname, 'user.', userManager);
 
         var d = $.Deferred();
         if(cachedValue !== null) {
@@ -135,7 +137,7 @@ define(['jquery', 'app/graph', 'app/user', 'app/storage'], function($, Graph, Us
 
                 // Страница пользователя заблокирована
                 if($('h1', $page).text() == 'Доступ закрыт') {
-                    user.markAsDeleted();
+                    userManager.markAsDeleted(user);
                 }
                 else {
                     // если мы забирали пользователя не со страницы другого пользователя

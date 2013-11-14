@@ -8,11 +8,17 @@ define([], function() {
 
             return this;
         },
-        load: function(name, prefix) {
+        load: function(name, prefix, factory) {
             prefix = prefix || '';
             var value = window.localStorage.getItem(prefix + name);
             if(value !== null) {
-                return JSON.parse(value);
+                var data = JSON.parse(value);
+                if(factory !== undefined) {
+                    return factory.create(data);
+                }
+                else {
+                    return data;
+                }
             }
             else {
                 return null;

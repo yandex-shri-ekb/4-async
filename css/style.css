@@ -1,0 +1,21 @@
+body
+{
+    padding: 0;
+    margin: 0;
+}
+
+#controls
+{
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 300px;
+    height: 120px;
+}
+
+line.link
+{
+    fill: none;
+    stroke: #9ecae1;
+    stroke-width: 1px;
+}

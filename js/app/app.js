@@ -237,6 +237,10 @@ define(['jquery', 'app/graph', 'app/user', 'app/user_manager', 'app/storage'], f
     /**
      */
     App.prototype.start = function() {
+        if(this.isStarted) {
+            return;
+        }
+
         this.isStarted = true;
         this.tick();
     };
@@ -244,6 +248,10 @@ define(['jquery', 'app/graph', 'app/user', 'app/user_manager', 'app/storage'], f
     /**
      */
     App.prototype.resume = function() {
+        if(!this.isStoped || !this.isStarted) {
+            return;
+        }
+
         this.isStoped = false;
         this.tick();
     };

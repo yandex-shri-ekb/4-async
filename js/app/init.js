@@ -1,3 +1,5 @@
+'use strict';
+
 require(['app/app', 'app/user', 'app/storage', 'jquery'], function(App, User, storage, $) {
 
     var INIT_USER_AMOUNT = storage.load('init_user_amount', 'settings.') || 3;

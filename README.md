@@ -1,5 +1,15 @@
 # Граф приглашений habrahabr.ru
 
+## Proof of concept
+
+1. На странице http://habrahabr.ru/users/ открыть консоль и скопировать в неё содержимое скрипта main.js.
+
+2. Выполнить функцию buildUsersTree(N), где N -- количество пользователей, которые должны присутствовать в дереве.
+
+А вот и [букмарклет](https://rawgithub.com/sameoldmadness/5-async/master/bookmarklet/index.html). 
+
+## Задание
+
 Вам нужно написать [букмарклет](http://ru.wikipedia.org/wiki/Букмарклет), который будет запускаться в браузере на странице http://habrahabr.ru/users/ и который для первых N пользователей страницы http://habrahabr.ru/users/ построит и визуализирует граф приглашений на Хабр. 
 
 Пользователи Хабра могут:

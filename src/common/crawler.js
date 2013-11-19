@@ -3,119 +3,72 @@
 
     var Queue = require('./queue'),
         Cache = require('./cache'),
-        /* TODO: include into crawler */
+
         parser = require('./parser'),
+        async = require('./async'),
 
         Crawler = function () {
-            this.processing_users = new Queue();
-            this.processed_users = new Queue();
             this.cache = new Cache('users');
+            this.queue = new Queue();
+
+            this.retry_timeout = 5000;
+            this.max_retry_attempts = 5;
         };
 
-    /* TODO: get rid of it */
-    Crawler.prototype.default_retry_timeout = 5000;
-    Crawler.prototype.default_max_retry_attempts = 5;
-
-    /*TODO: refactor method*/
-    Crawler.prototype.init = function () {
-        this.retry_timeout = this.default_retry_timeout;
-        this.max_retry_attempts = this.default_max_retry_attempts;
-
-        this.processing_users.empty();
-        this.processed_users.empty();
-    };
-
     Crawler.prototype.run = function (user_number) {
-        var self = this,
-            top_users = parser.getUsersUrls(document, user_number);
+        this.queue.empty();
 
-        this.init();
-
-        top_users.forEach(function (url) {
-            self.handleUser(url);
-        });
+        parser.getUsersUrls(document, user_number).forEach(function (url) {
+            this.handleUser(url);
+        }.bind(this));
     };
 
-    /*TODO review method name*/
-    Crawler.prototype.sendUser = function (url) {
-        var self = this,
-            user = this.cache.get(url);
-
+    Crawler.prototype.processUser = function (user) {
         if (user) {
             if (user.parent_url) {
                 this.handleUser(user.parent_url);
             }
 
             user.children_urls.forEach(function (child) {
-                self.handleUser(child);
-            });
+                this.handleUser(child);
+            }.bind(this));
 
             if (typeof this.onUserParsed === 'function') {
                 this.onUserParsed(user);
             }
         }
 
-        this.processing_users.take(url);
-        this.processed_users.put(url);
+        this.queue.setLabel(user.url, 'processed');
 
-        if (this.processing_users.isEmpty()) {
+        if (this.queue.allHaveLabel('processed')) {
             if (typeof this.onLastUserSent === 'function') {
                 this.onLastUserSent();
             }
         }
     };
 
-    /*TODO review method name*/
-    Crawler.prototype.handleUser = function (url, timeout, attempt) {
+    Crawler.prototype.handleUser = function (url) {
         var self = this;
 
-        timeout = timeout !== undefined ? timeout : this.retry_timeout;
-        attempt = attempt !== undefined ? attempt : 1;
-
-        if (this.processed_users.contains(url)) {
+        if (this.queue.contains(url)) {
             return;
         }
 
-        if (this.processing_users.contains(url)) {
-            return;
-        }
+        this.queue.put(url);
 
-        this.processing_users.put(url);
-
-        if (this.cache.get(url)) {
-            setTimeout(function () {
-                self.sendUser(url);
-            }, 0);
-
-            return;
-        }
-
-        var xhr = new XMLHttpRequest();
-        xhr.onreadystatechange = function () {
-            if (xhr.readyState !== 4) return;
-
-            switch (xhr.status) {
-            case 200:
-                var user = parser.getUser(xhr.responseText);
-
-                self.cache.set(url, user);
-                self.sendUser(url);
-                break;
-            default:
-                if (attempt >= this.max_retry_attempts) {
-                    self.processing_users.take(url);
-
-                    return;
-                }
-
-                setTimeout(function () {
-                    self.handleUser(url, this.timeout * 2, attempt + 1);
-                }, this.timeout);
-                break;
+        async.request(
+            url,
+            this.cache,
+            function (html) {
+                self.processUser(parser.getUser(html));
+            },
+            function () {
+                self.queue.take(url);
+            },
+            function (attempt) {
+                return attempt < self.max_retry_attempts ? self.retry_timeout * attempt : false;
             }
-        }
-        xhr.open("GET", url, true);
-        xhr.send();
+        );
     };
 
     module.exports = Crawler;

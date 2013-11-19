@@ -4,14 +4,14 @@ module.exports = function (grunt) {
     require('load-grunt-tasks')(grunt);
 
     grunt.initConfig({
-        bower: {
-            install: {
-                options: {
-                    targetDir: './vendor',
-                    cleanup: true
-                }
-            }
-        },
+        // bower: {
+        //     install: {
+        //         options: {
+        //             targetDir: './vendor',
+        //             cleanup: true
+        //         }
+        //     }
+        // },
         jslint: {
             dist: {
                 src: [
@@ -52,10 +52,10 @@ module.exports = function (grunt) {
         browserify: {
             dist: {
                 files: {
-                    // 'chrome_extension/popup.js': 'src/chrome_extension/popup.js',
-                    // 'chrome_extension/contentscript.js': 'src/chrome_extension/contentscript.js',
+                    'chrome_extension/popup.js': 'src/chrome_extension/popup.js',
+                    'chrome_extension/contentscript.js': 'src/chrome_extension/contentscript.js',
                     'bookmarklet/bookmarklet.js': 'src/bookmarklet/bookmarklet.js'
-                },
+                }
                 // this somehow adds d3 to each file
                 // options: {
                 //     shim: {
@@ -81,9 +81,9 @@ module.exports = function (grunt) {
     });
 
     grunt.registerTask('default', [
-        'bower',
+        // 'bower',
         'jsbeautifier',
-        // 'jslint',
+        'jslint',
         'browserify',
         'uglify',
         'bookmarklet',
